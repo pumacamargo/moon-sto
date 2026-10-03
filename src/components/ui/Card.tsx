@@ -1,19 +1,20 @@
 import { clsx } from 'clsx'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 interface CardProps {
   children: ReactNode
   className?: string
+  style?: CSSProperties
 }
 
-export function Card({ children, className }: CardProps) {
+export function Card({ children, className, style }: CardProps) {
   return (
     <div
       className={clsx(
         'rounded-xl border p-4',
         className
       )}
-      style={{ background: '#12121A', borderColor: '#1E1E2E' }}
+      style={{ background: '#12121A', borderColor: '#1E1E2E', ...style }}
     >
       {children}
     </div>

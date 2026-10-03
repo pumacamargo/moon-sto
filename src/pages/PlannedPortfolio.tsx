@@ -1,212 +1,279 @@
 import { useState } from 'react'
-import { Card, CardContent } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
+import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { formatCurrency } from '../lib/currency'
 import { mockPlannedGroups, TOTAL_CAD } from '../lib/mockData'
+import { formatPct } from '../lib/currency'
 
-const GROUP_STYLES = [
-  { bg: 'rgba(99,102,241,0.06)', accent: '#6366F1', light: 'rgba(99,102,241,0.12)' },
-  { bg: 'rgba(16,185,129,0.06)', accent: '#10B981', light: 'rgba(16,185,129,0.12)' },
-  { bg: 'rgba(245,158,11,0.06)', accent: '#F59E0B', light: 'rgba(245,158,11,0.12)' },
-]
+const GROUP_BG: Record<string, string> = {
+  Productive: 'rgba(99,102,241,0.07)',
+  Liquidity: 'rgba(16,185,129,0.07)',
+  Protection: 'rgba(245,158,11,0.07)',
+}
+const GROUP_COLOR: Record<string, string> = {
+  Productive: '#818CF8',
+  Liquidity: '#34D399',
+  Protection: '#FBBF24',
+}
 
-export default function PlannedPortfolio() {
-  const { displayCurrency, convert: convertDisplay } = useCurrency()
+const thStyle: React.CSSProperties = {
+  padding: '8px 10px',
+  color: '#94A3B8',
+  fontWeight: 500,
+  borderBottom: '1px solid #1E1E2E',
+  whiteSpace: 'nowrap',
+  fontSize: 12,
+  textAlign: 'right',
+}
+
+const tdStyle: React.CSSProperties = {
+  padding: '9px 10px',
+  fontSize: 13,
+  textAlign: 'right',
+  borderBottom: '1px solid #0D0D14',
+}
+
+export function PlannedPortfolio() {
+  const { convert, formatDisplay } = useCurrency()
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const allCategories = mockPlannedGroups.flatMap((g) => g.categories)
+  const allCategories = mockPlannedGroups.flatMap(g => g.categories)
 
-  const locationSummary = (['Canada', 'Mexico', 'Japan'] as const).map((loc) => {
-    const cats = allCategories.filter((c) => c.location === loc)
-    const currentCAD = cats.reduce((s, c) => s + c.currentValue, 0)
-    const targetCAD = cats.reduce((s, c) => s + c.targetValue, 0)
-    const currentPct = (currentCAD / TOTAL_CAD) * 100
-    const targetPct = (targetCAD / TOTAL_CAD) * 100
-    return { loc, currentCAD, targetCAD, currentPct, targetPct }
+  const locationRows = (['Canada', 'Mexico', 'Japan'] as const).map(loc => {
+    const cats = allCategories.filter(c => c.location === loc)
+    return {
+      location: loc,
+      targetPct: cats.reduce((s, c) => s + c.targetPct, 0),
+      currentPct: cats.reduce((s, c) => s + c.currentPct, 0),
+      targetValue: cats.reduce((s, c) => s + c.targetValue, 0),
+      currentValue: cats.reduce((s, c) => s + c.currentValue, 0),
+      netPnl: cats.reduce((s, c) => s + (c.netPnl ?? 0), 0),
+    }
   })
 
-  const totalCurrentCAD = allCategories.reduce((s, c) => s + c.currentValue, 0)
-  const totalTargetCAD = allCategories.reduce((s, c) => s + c.targetValue, 0)
-
   const suggestions = allCategories
-    .filter((c) => c.targetValue > 0)
-    .map((c) => ({
-      category: c.category,
-      location: c.location,
-      diff: c.targetValue - c.currentValue,
-    }))
-    .filter((s) => Math.abs(s.diff) > 100)
-    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+    .filter(c => c.targetPct > 0 || c.currentPct > 0)
+    .map(c => {
+      const diffVal = c.targetValue - c.currentValue
+      return { category: c.category, location: c.location, diffVal }
+    })
+    .filter(s => Math.abs(s.diffVal) > 1)
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <p className="text-sm" style={{ color: '#94A3B8' }}>
-          Target total: {formatCurrency(convertDisplay(TOTAL_CAD, 'CAD'), displayCurrency)}
-        </p>
-        <Button variant="secondary" size="sm" onClick={() => setShowSuggestions((v) => !v)}>
-          {showSuggestions ? 'Hide' : 'Show'} Suggested Transactions
-        </Button>
-      </div>
-
-      {showSuggestions && (
-        <Card>
-          <p className="text-sm font-semibold mb-3" style={{ color: '#F1F5F9' }}>Suggested Transactions</p>
-          <div className="space-y-2">
-            {suggestions.map((s) => (
-              <div key={s.category + s.location} className="flex items-center justify-between py-2 border-b" style={{ borderColor: '#1E1E2E' }}>
-                <div>
-                  <span className="text-sm font-medium" style={{ color: '#F1F5F9' }}>{s.category}</span>
-                  <span className="text-xs ml-2" style={{ color: '#94A3B8' }}>{s.location}</span>
-                </div>
-                <span className="text-sm font-medium" style={{ color: s.diff > 0 ? '#10B981' : '#EF4444' }}>
-                  {s.diff > 0 ? 'BUY' : 'SELL'} {formatCurrency(Math.abs(convertDisplay(s.diff, 'CAD')), displayCurrency)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      <Card>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid #1E1E2E' }}>
-                  {['Group', 'Location', 'Category', 'Target %', 'Current %', 'Difference', 'Target Value', 'Current Value', 'Value Diff'].map((h) => (
-                    <th key={h} className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wide whitespace-nowrap" style={{ color: '#94A3B8' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mockPlannedGroups.map((g, gi) => {
-                  const style = GROUP_STYLES[gi % GROUP_STYLES.length]
-                  const groupCurrentCAD = g.categories.reduce((s, c) => s + c.currentValue, 0)
-                  const groupTargetCAD = g.categories.reduce((s, c) => s + c.targetValue, 0)
-                  const groupCurrentPct = (groupCurrentCAD / TOTAL_CAD) * 100
-                  const groupDiff = groupCurrentPct - g.targetPct
-                  return (
-                    <>
-                      <tr key={`group-${g.id}`} style={{ background: style.light, borderBottom: '1px solid #1E1E2E' }}>
-                        <td colSpan={9} className="px-3 py-2 text-xs font-bold uppercase tracking-widest" style={{ color: style.accent }}>
-                          {g.name} — Target {g.targetPct}% | Current {groupCurrentPct.toFixed(1)}%
-                        </td>
-                      </tr>
-                      {g.categories.map((cat) => {
-                        const diffPct = cat.currentPct - cat.targetPct
-                        const valueDiffCAD = cat.currentValue - cat.targetValue
-                        return (
-                          <tr key={cat.id} style={{ background: style.bg, borderBottom: '1px solid #1E1E2E' }}>
-                            <td className="px-3 py-2.5" style={{ color: style.accent, fontSize: 11 }}>{g.name}</td>
-                            <td className="px-3 py-2.5" style={{ color: '#94A3B8' }}>{cat.location}</td>
-                            <td className="px-3 py-2.5 font-medium" style={{ color: '#F1F5F9' }}>{cat.category}</td>
-                            <td className="px-3 py-2.5 text-right" style={{ color: '#F1F5F9' }}>{cat.targetPct}%</td>
-                            <td className="px-3 py-2.5 text-right" style={{ color: '#F1F5F9' }}>{cat.currentPct.toFixed(2)}%</td>
-                            <td className="px-3 py-2.5 text-right" style={{ color: diffPct >= 0 ? '#10B981' : '#EF4444' }}>
-                              {diffPct >= 0 ? '+' : ''}{diffPct.toFixed(2)}%
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Table 1: by Group + Category */}
+      <Card style={{ padding: 0 }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid #1E1E2E' }}>
+          <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Planned Allocation — by Group
+          </span>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#0D0D14' }}>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Group</th>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Location</th>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Category</th>
+                <th style={thStyle}>Target %</th>
+                <th style={thStyle}>Current %</th>
+                <th style={thStyle}>Diff %</th>
+                <th style={thStyle}>Target Value</th>
+                <th style={thStyle}>Current Value</th>
+                <th style={thStyle}>Value Diff</th>
+                <th style={thStyle}>Net PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockPlannedGroups.map(g => {
+                const gTargetPct = g.categories.reduce((s, c) => s + c.targetPct, 0)
+                const gCurrentPct = g.categories.reduce((s, c) => s + c.currentPct, 0)
+                const gTargetVal = g.categories.reduce((s, c) => s + c.targetValue, 0)
+                const gCurrentVal = g.categories.reduce((s, c) => s + c.currentValue, 0)
+                const gNetPnl = g.categories.reduce((s, c) => s + (c.netPnl ?? 0), 0)
+                return (
+                  <>
+                    {g.categories.map((c, idx) => {
+                      const diff = c.currentPct - c.targetPct
+                      const valDiff = c.currentValue - c.targetValue
+                      return (
+                        <tr key={c.id} style={{ background: GROUP_BG[g.name], borderBottom: '1px solid #0D0D14' }}>
+                          {idx === 0 && (
+                            <td
+                              rowSpan={g.categories.length}
+                              style={{ padding: '10px 12px', textAlign: 'left', color: GROUP_COLOR[g.name], fontWeight: 700, fontSize: 13, verticalAlign: 'middle', borderRight: '1px solid #1E1E2E' }}
+                            >
+                              {g.name}
                             </td>
-                            <td className="px-3 py-2.5 text-right" style={{ color: '#94A3B8' }}>
-                              {formatCurrency(convertDisplay(cat.targetValue, 'CAD'), displayCurrency)}
-                            </td>
-                            <td className="px-3 py-2.5 text-right" style={{ color: '#F1F5F9' }}>
-                              {formatCurrency(convertDisplay(cat.currentValue, 'CAD'), displayCurrency)}
-                            </td>
-                            <td className="px-3 py-2.5 text-right" style={{ color: valueDiffCAD >= 0 ? '#10B981' : '#EF4444' }}>
-                              {valueDiffCAD >= 0 ? '+' : ''}{formatCurrency(convertDisplay(valueDiffCAD, 'CAD'), displayCurrency)}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                      <tr key={`subtotal-${g.id}`} style={{ background: style.light, borderBottom: '2px solid #1E1E2E' }}>
-                        <td colSpan={3} className="px-3 py-2 text-xs font-semibold" style={{ color: style.accent }}>
-                          Group Total
-                        </td>
-                        <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: '#F1F5F9' }}>{g.targetPct}%</td>
-                        <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: '#F1F5F9' }}>{groupCurrentPct.toFixed(1)}%</td>
-                        <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: groupDiff >= 0 ? '#10B981' : '#EF4444' }}>
-                          {groupDiff >= 0 ? '+' : ''}{groupDiff.toFixed(1)}%
-                        </td>
-                        <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: '#94A3B8' }}>
-                          {formatCurrency(convertDisplay(groupTargetCAD, 'CAD'), displayCurrency)}
-                        </td>
-                        <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: '#F1F5F9' }}>
-                          {formatCurrency(convertDisplay(groupCurrentCAD, 'CAD'), displayCurrency)}
-                        </td>
-                        <td className="px-3 py-2 text-right text-xs font-semibold" style={{ color: groupCurrentCAD - groupTargetCAD >= 0 ? '#10B981' : '#EF4444' }}>
-                          {groupCurrentCAD - groupTargetCAD >= 0 ? '+' : ''}{formatCurrency(convertDisplay(groupCurrentCAD - groupTargetCAD, 'CAD'), displayCurrency)}
-                        </td>
-                      </tr>
-                    </>
-                  )
-                })}
-                <tr style={{ background: 'rgba(99,102,241,0.08)' }}>
-                  <td colSpan={3} className="px-3 py-3 text-xs font-bold uppercase" style={{ color: '#F1F5F9' }}>
-                    TOTAL
-                  </td>
-                  <td className="px-3 py-3 text-right text-xs font-bold" style={{ color: '#F1F5F9' }}>100%</td>
-                  <td className="px-3 py-3 text-right text-xs font-bold" style={{ color: '#F1F5F9' }}>
-                    {((totalCurrentCAD / TOTAL_CAD) * 100).toFixed(1)}%
-                  </td>
-                  <td className="px-3 py-3 text-right text-xs font-bold" style={{ color: '#94A3B8' }}>—</td>
-                  <td className="px-3 py-3 text-right text-xs font-bold" style={{ color: '#94A3B8' }}>
-                    {formatCurrency(convertDisplay(totalTargetCAD, 'CAD'), displayCurrency)}
-                  </td>
-                  <td className="px-3 py-3 text-right text-xs font-bold" style={{ color: '#F1F5F9' }}>
-                    {formatCurrency(convertDisplay(totalCurrentCAD, 'CAD'), displayCurrency)}
-                  </td>
-                  <td className="px-3 py-3 text-right text-xs font-bold" style={{ color: totalCurrentCAD - totalTargetCAD >= 0 ? '#10B981' : '#EF4444' }}>
-                    {totalCurrentCAD - totalTargetCAD >= 0 ? '+' : ''}{formatCurrency(convertDisplay(totalCurrentCAD - totalTargetCAD, 'CAD'), displayCurrency)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <p className="text-sm font-semibold mb-3" style={{ color: '#F1F5F9' }}>By Location</p>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid #1E1E2E' }}>
-                  {['Location', 'Target %', 'Current %', 'Difference', 'Target Value', 'Current Value'].map((h) => (
-                    <th key={h} className="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wide" style={{ color: '#94A3B8' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {locationSummary.map((l) => {
-                  const diff = l.currentPct - l.targetPct
-                  return (
-                    <tr key={l.loc} style={{ borderBottom: '1px solid #1E1E2E' }}>
-                      <td className="px-3 py-2.5 font-medium" style={{ color: '#F1F5F9' }}>{l.loc}</td>
-                      <td className="px-3 py-2.5" style={{ color: '#F1F5F9' }}>{l.targetPct.toFixed(1)}%</td>
-                      <td className="px-3 py-2.5" style={{ color: '#F1F5F9' }}>{l.currentPct.toFixed(1)}%</td>
-                      <td className="px-3 py-2.5" style={{ color: diff >= 0 ? '#10B981' : '#EF4444' }}>
-                        {diff >= 0 ? '+' : ''}{diff.toFixed(1)}%
+                          )}
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{c.location}</td>
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9' }}>{c.category}</td>
+                          <td style={tdStyle}>{c.targetPct > 0 ? `${c.targetPct}%` : '—'}</td>
+                          <td style={tdStyle}>{c.currentPct.toFixed(2)}%</td>
+                          <td style={{ ...tdStyle, color: diff >= 0 ? '#10B981' : '#EF4444' }}>{formatPct(diff)}</td>
+                          <td style={{ ...tdStyle, color: '#94A3B8' }}>{c.targetValue > 0 ? formatDisplay(convert(c.targetValue, 'CAD')) : '—'}</td>
+                          <td style={{ ...tdStyle, color: '#F1F5F9' }}>{formatDisplay(convert(c.currentValue, 'CAD'))}</td>
+                          <td style={{ ...tdStyle, color: valDiff >= 0 ? '#10B981' : '#EF4444' }}>
+                            {valDiff >= 0 ? '+' : ''}{formatDisplay(convert(valDiff, 'CAD'))}
+                          </td>
+                          <td style={{ ...tdStyle, color: (c.netPnl ?? 0) >= 0 ? '#10B981' : '#EF4444' }}>
+                            {(c.netPnl ?? 0) !== 0 ? formatDisplay(convert(c.netPnl ?? 0, 'CAD')) : '—'}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    <tr key={`sub-${g.id}`} style={{ background: 'rgba(0,0,0,0.25)', borderBottom: '2px solid #1E1E2E' }}>
+                      <td style={{ ...tdStyle, textAlign: 'left', color: GROUP_COLOR[g.name], fontWeight: 700 }}>Subtotal {g.name}</td>
+                      <td style={tdStyle} />
+                      <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>{gTargetPct}%</td>
+                      <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>{gCurrentPct.toFixed(2)}%</td>
+                      <td style={{ ...tdStyle, color: (gCurrentPct - gTargetPct) >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                        {formatPct(gCurrentPct - gTargetPct)}
                       </td>
-                      <td className="px-3 py-2.5" style={{ color: '#94A3B8' }}>
-                        {formatCurrency(convertDisplay(l.targetCAD, 'CAD'), displayCurrency)}
+                      <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>{formatDisplay(convert(gTargetVal, 'CAD'))}</td>
+                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(convert(gCurrentVal, 'CAD'))}</td>
+                      <td style={{ ...tdStyle, color: (gCurrentVal - gTargetVal) >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                        {(gCurrentVal - gTargetVal) >= 0 ? '+' : ''}{formatDisplay(convert(gCurrentVal - gTargetVal, 'CAD'))}
                       </td>
-                      <td className="px-3 py-2.5" style={{ color: '#F1F5F9' }}>
-                        {formatCurrency(convertDisplay(l.currentCAD, 'CAD'), displayCurrency)}
+                      <td style={{ ...tdStyle, color: gNetPnl >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                        {formatDisplay(convert(gNetPnl, 'CAD'))}
                       </td>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
+                  </>
+                )
+              })}
+              {/* Grand total */}
+              <tr style={{ borderTop: '2px solid #6366F1', background: '#0D0D14' }}>
+                <td colSpan={3} style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
+                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>100%</td>
+                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>
+                  {mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentPct, 0), 0).toFixed(2)}%
+                </td>
+                <td style={tdStyle} />
+                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>
+                  {formatDisplay(convert(mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.targetValue, 0), 0), 'CAD'))}
+                </td>
+                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>
+                  {formatDisplay(convert(TOTAL_CAD, 'CAD'))}
+                </td>
+                <td style={tdStyle} />
+                <td style={{ ...tdStyle, color: '#10B981', fontWeight: 700 }}>
+                  {formatDisplay(convert(mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + (c.netPnl ?? 0), 0), 0), 'CAD'))}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </Card>
+
+      {/* Table 2: by Location */}
+      <Card style={{ padding: 0 }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid #1E1E2E' }}>
+          <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Allocation by Location
+          </span>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#0D0D14' }}>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Location</th>
+                <th style={thStyle}>Target %</th>
+                <th style={thStyle}>Current %</th>
+                <th style={thStyle}>Diff %</th>
+                <th style={thStyle}>Target Value</th>
+                <th style={thStyle}>Current Value</th>
+                <th style={thStyle}>Value Diff</th>
+                <th style={thStyle}>Net PnL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {locationRows.map(r => {
+                const diff = r.currentPct - r.targetPct
+                const valDiff = r.currentValue - r.targetValue
+                return (
+                  <tr key={r.location} style={{ borderBottom: '1px solid #0D0D14' }}>
+                    <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 600 }}>{r.location}</td>
+                    <td style={tdStyle}>{r.targetPct > 0 ? `${r.targetPct}%` : '—'}</td>
+                    <td style={tdStyle}>{r.currentPct.toFixed(2)}%</td>
+                    <td style={{ ...tdStyle, color: diff >= 0 ? '#10B981' : '#EF4444' }}>{formatPct(diff)}</td>
+                    <td style={{ ...tdStyle, color: '#94A3B8' }}>{r.targetValue > 0 ? formatDisplay(convert(r.targetValue, 'CAD')) : '—'}</td>
+                    <td style={{ ...tdStyle, color: '#F1F5F9' }}>{formatDisplay(convert(r.currentValue, 'CAD'))}</td>
+                    <td style={{ ...tdStyle, color: valDiff >= 0 ? '#10B981' : '#EF4444' }}>
+                      {valDiff >= 0 ? '+' : ''}{formatDisplay(convert(valDiff, 'CAD'))}
+                    </td>
+                    <td style={{ ...tdStyle, color: r.netPnl >= 0 ? '#10B981' : '#EF4444' }}>
+                      {formatDisplay(convert(r.netPnl, 'CAD'))}
+                    </td>
+                  </tr>
+                )
+              })}
+              <tr style={{ borderTop: '2px solid #1E1E2E', background: '#0D0D14' }}>
+                <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
+                <td style={{ ...tdStyle, fontWeight: 700 }}>{locationRows.reduce((s, r) => s + r.targetPct, 0)}%</td>
+                <td style={{ ...tdStyle, fontWeight: 700 }}>{locationRows.reduce((s, r) => s + r.currentPct, 0).toFixed(2)}%</td>
+                <td style={tdStyle} />
+                <td style={{ ...tdStyle, fontWeight: 700 }}>{formatDisplay(convert(locationRows.reduce((s, r) => s + r.targetValue, 0), 'CAD'))}</td>
+                <td style={{ ...tdStyle, fontWeight: 700 }}>{formatDisplay(convert(locationRows.reduce((s, r) => s + r.currentValue, 0), 'CAD'))}</td>
+                <td style={tdStyle} />
+                <td style={{ ...tdStyle, fontWeight: 700, color: '#10B981' }}>
+                  {formatDisplay(convert(locationRows.reduce((s, r) => s + r.netPnl, 0), 'CAD'))}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Suggested Transactions */}
+      <div>
+        <button
+          onClick={() => setShowSuggestions(s => !s)}
+          style={{
+            background: showSuggestions ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)',
+            border: '1px solid rgba(99,102,241,0.4)',
+            color: '#818CF8',
+            padding: '8px 20px',
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontSize: 13,
+            fontWeight: 600,
+          }}
+        >
+          {showSuggestions ? 'Hide' : 'Show'} Suggested Transactions
+        </button>
+
+        {showSuggestions && (
+          <Card style={{ marginTop: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {suggestions.map(s => (
+                <div key={s.category} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  background: s.diffVal > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                  border: `1px solid ${s.diffVal > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                }}>
+                  <div>
+                    <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: 13 }}>{s.category}</span>
+                    <span style={{ color: '#94A3B8', fontSize: 12, marginLeft: 8 }}>({s.location})</span>
+                  </div>
+                  <span style={{
+                    color: s.diffVal > 0 ? '#10B981' : '#EF4444',
+                    fontWeight: 700,
+                    fontSize: 13,
+                  }}>
+                    {s.diffVal > 0
+                      ? `BUY ${formatDisplay(convert(s.diffVal, 'CAD'))} more`
+                      : `REDUCE ${formatDisplay(convert(Math.abs(s.diffVal), 'CAD'))}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }

@@ -32,3 +32,8 @@ export function formatCurrency(value: number, currency: Currency): string {
   const formatted = value.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   return `$${formatted} ${currency}`
 }
+
+export function formatPct(value: number): string {
+  const sign = value >= 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
+}

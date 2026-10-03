@@ -1,151 +1,155 @@
 import { useState } from 'react'
-import { Card, CardContent } from '../components/ui/Card'
-import { Badge } from '../components/ui/Badge'
-import { Select } from '../components/ui/Select'
+import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { formatCurrency, convert } from '../lib/currency'
-import { mockPositions, mockAccounts, mockExchangeRates } from '../lib/mockData'
-import type { Currency } from '../types'
+import { mockPositions, mockAccounts } from '../lib/mockData'
+import { formatCurrency, formatPct } from '../lib/currency'
+
+const thStyle: React.CSSProperties = {
+  textAlign: 'right',
+  padding: '8px 10px',
+  color: '#94A3B8',
+  fontWeight: 500,
+  borderBottom: '1px solid #1E1E2E',
+  whiteSpace: 'nowrap',
+  fontSize: 12,
+}
+
+const tdStyle: React.CSSProperties = {
+  padding: '9px 10px',
+  fontSize: 13,
+  textAlign: 'right',
+  borderBottom: '1px solid #0D0D14',
+}
 
 export default function Portfolio() {
-  const { displayCurrency, convert: convertDisplay } = useCurrency()
+  const { convert, formatDisplay, displayCurrency } = useCurrency()
   const [filterAccount, setFilterAccount] = useState('all')
-  const [filterLocation, setFilterLocation] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
 
-  const accountOptions = [
-    { value: 'all', label: 'All Accounts' },
-    ...mockAccounts.map((a) => ({ value: a.id, label: a.name })),
-  ]
-  const locationOptions = [
-    { value: 'all', label: 'All Locations' },
-    { value: 'Canada', label: 'Canada' },
-    { value: 'Mexico', label: 'Mexico' },
-    { value: 'Japan', label: 'Japan' },
-  ]
-  const categories = [...new Set(mockPositions.map((p) => p.category))]
-  const categoryOptions = [
-    { value: 'all', label: 'All Categories' },
-    ...categories.map((c) => ({ value: c, label: c })),
-  ]
+  const categories = Array.from(new Set(mockPositions.map(p => p.category))).sort()
 
-  const filtered = mockPositions.filter((p) => {
-    const account = mockAccounts.find((a) => a.id === p.accountId)
+  const filtered = mockPositions.filter(p => {
     if (filterAccount !== 'all' && p.accountId !== filterAccount) return false
-    if (filterLocation !== 'all' && account?.location !== filterLocation) return false
     if (filterCategory !== 'all' && p.category !== filterCategory) return false
     return true
   })
 
-  const grouped = mockAccounts
-    .map((acc) => {
-      const positions = filtered.filter((p) => p.accountId === acc.id)
-      return { account: acc, positions }
-    })
-    .filter((g) => g.positions.length > 0)
+  const byAccount = mockAccounts.map(acc => ({
+    account: acc,
+    positions: filtered.filter(p => p.accountId === acc.id),
+  })).filter(g => g.positions.length > 0)
+
+  const grandTotalDisplay = filtered.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
+  const grandTotalCost = filtered.reduce((s, p) => s + p.value, 0)
+  const grandTotalCostDisplay = filtered.reduce((s, p) => s + convert(p.value, p.currency), 0)
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-3">
-        <Select options={accountOptions} value={filterAccount} onChange={(e) => setFilterAccount(e.target.value)} />
-        <Select options={locationOptions} value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} />
-        <Select options={categoryOptions} value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 12 }}>
+        <select
+          value={filterAccount}
+          onChange={e => setFilterAccount(e.target.value)}
+          style={{ background: '#12121A', border: '1px solid #1E1E2E', color: '#F1F5F9', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}
+        >
+          <option value="all">All Accounts</option>
+          {mockAccounts.map(a => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </select>
+        <select
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          style={{ background: '#12121A', border: '1px solid #1E1E2E', color: '#F1F5F9', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}
+        >
+          <option value="all">All Categories</option>
+          {categories.map(c => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
       </div>
 
-      {grouped.map(({ account, positions }) => {
-        const subtotalOriginal = positions.reduce((s, p) => s + p.currentValue, 0)
-        const subtotalDisplay = positions.reduce(
-          (s, p) => s + convertDisplay(p.currentValue, p.currency),
-          0
-        )
-        const subtotalCost = positions.reduce(
-          (s, p) => s + convertDisplay(p.value, p.currency),
-          0
-        )
-        const subtotalDiff = subtotalDisplay - subtotalCost
-
-        return (
-          <Card key={account.id}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>
-                  {account.name}
-                </h3>
-                <Badge variant="neutral">{account.location}</Badge>
-                <Badge variant="accent">{account.currency}</Badge>
-              </div>
-              <div className="text-right">
-                <p className="text-xs" style={{ color: '#94A3B8' }}>Subtotal</p>
-                <p className="text-sm font-medium" style={{ color: '#F1F5F9' }}>
-                  {formatCurrency(subtotalDisplay, displayCurrency)}
-                </p>
-              </div>
-            </div>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #1E1E2E' }}>
-                      <th className="px-3 py-2 text-left text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Ticker</th>
-                      <th className="px-3 py-2 text-left text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Category</th>
-                      <th className="px-3 py-2 text-right text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Original Value</th>
-                      <th className="px-3 py-2 text-right text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Current ({account.currency})</th>
-                      <th className="px-3 py-2 text-right text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Value ({displayCurrency})</th>
-                      <th className="px-3 py-2 text-right text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>Diff ({displayCurrency})</th>
-                      <th className="px-3 py-2 text-right text-xs uppercase tracking-wide" style={{ color: '#94A3B8' }}>% Gain</th>
+      <Card style={{ padding: 0 }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#0D0D14' }}>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Account</th>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Ticker</th>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Category</th>
+                <th style={{ ...thStyle, textAlign: 'left' }}>SubCat</th>
+                <th style={thStyle}>Cost</th>
+                <th style={thStyle}>Current (orig)</th>
+                <th style={thStyle}>Cost ({displayCurrency})</th>
+                <th style={thStyle}>Current ({displayCurrency})</th>
+                <th style={thStyle}>Diff ({displayCurrency})</th>
+                <th style={thStyle}>% Gain</th>
+              </tr>
+            </thead>
+            <tbody>
+              {byAccount.map(({ account, positions }) => {
+                const accTotal = positions.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
+                const accCost = positions.reduce((s, p) => s + convert(p.value, p.currency), 0)
+                return (
+                  <>
+                    <tr key={`hdr-${account.id}`} style={{ background: 'rgba(99,102,241,0.05)' }}>
+                      <td colSpan={10} style={{ padding: '8px 10px', color: '#818CF8', fontWeight: 700, fontSize: 12, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                        {account.name} — {account.location} ({account.currency})
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {positions.map((pos) => {
-                      const displayValue = convertDisplay(pos.currentValue, pos.currency)
-                      const displayCost = convertDisplay(pos.value, pos.currency)
-                      const diff = displayValue - displayCost
+                    {positions.map(p => {
+                      const currentDisplay = convert(p.currentValue, p.currency)
+                      const costDisplay = convert(p.value, p.currency)
+                      const diffDisplay = currentDisplay - costDisplay
                       return (
-                        <tr key={pos.id} style={{ borderBottom: '1px solid #1E1E2E' }}>
-                          <td className="px-3 py-2.5 font-medium" style={{ color: '#F1F5F9' }}>{pos.ticker}</td>
-                          <td className="px-3 py-2.5" style={{ color: '#94A3B8' }}>{pos.category}</td>
-                          <td className="px-3 py-2.5 text-right" style={{ color: '#94A3B8' }}>
-                            {formatCurrency(pos.value, pos.currency)}
+                        <tr key={p.id} style={{ borderBottom: '1px solid #0D0D14' }}>
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{account.name}</td>
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 600 }}>{p.ticker}</td>
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{p.category}</td>
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#4B5563' }}>{p.subCategory ?? '—'}</td>
+                          <td style={tdStyle}>{formatCurrency(p.value, p.currency)}</td>
+                          <td style={tdStyle}>{formatCurrency(p.currentValue, p.currency)}</td>
+                          <td style={tdStyle}>{formatDisplay(costDisplay)}</td>
+                          <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(currentDisplay)}</td>
+                          <td style={{ ...tdStyle, color: diffDisplay >= 0 ? '#10B981' : '#EF4444' }}>
+                            {diffDisplay >= 0 ? '+' : ''}{formatDisplay(diffDisplay)}
                           </td>
-                          <td className="px-3 py-2.5 text-right" style={{ color: '#F1F5F9' }}>
-                            {formatCurrency(pos.currentValue, pos.currency as Currency)}
-                          </td>
-                          <td className="px-3 py-2.5 text-right" style={{ color: '#F1F5F9' }}>
-                            {formatCurrency(displayValue, displayCurrency)}
-                          </td>
-                          <td className="px-3 py-2.5 text-right" style={{ color: diff >= 0 ? '#10B981' : '#EF4444' }}>
-                            {diff >= 0 ? '+' : ''}{formatCurrency(diff, displayCurrency)}
-                          </td>
-                          <td className="px-3 py-2.5 text-right">
-                            <span
-                              className="text-xs font-medium"
-                              style={{ color: pos.pctGain >= 0 ? '#10B981' : '#EF4444' }}
-                            >
-                              {pos.pctGain >= 0 ? '+' : ''}{pos.pctGain.toFixed(2)}%
-                            </span>
+                          <td style={{ ...tdStyle, color: p.pctGain >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                            {formatPct(p.pctGain)}
                           </td>
                         </tr>
                       )
                     })}
-                    <tr style={{ background: 'rgba(99,102,241,0.04)' }}>
-                      <td colSpan={4} className="px-3 py-2.5 text-xs font-medium" style={{ color: '#94A3B8' }}>
-                        Subtotal
+                    <tr key={`sub-${account.id}`} style={{ background: 'rgba(0,0,0,0.2)' }}>
+                      <td colSpan={6} style={{ padding: '8px 10px', color: '#94A3B8', fontSize: 12, textAlign: 'right', fontStyle: 'italic' }}>
+                        Subtotal {account.name}
                       </td>
-                      <td className="px-3 py-2.5 text-right text-sm font-semibold" style={{ color: '#F1F5F9' }}>
-                        {formatCurrency(subtotalDisplay, displayCurrency)}
+                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(accCost)}</td>
+                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(accTotal)}</td>
+                      <td style={{ ...tdStyle, color: (accTotal - accCost) >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                        {(accTotal - accCost) >= 0 ? '+' : ''}{formatDisplay(accTotal - accCost)}
                       </td>
-                      <td className="px-3 py-2.5 text-right text-sm font-semibold" style={{ color: subtotalDiff >= 0 ? '#10B981' : '#EF4444' }}>
-                        {subtotalDiff >= 0 ? '+' : ''}{formatCurrency(subtotalDiff, displayCurrency)}
-                      </td>
-                      <td />
+                      <td style={tdStyle} />
                     </tr>
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })}
+                  </>
+                )
+              })}
+              <tr style={{ borderTop: '2px solid #1E1E2E', background: '#0D0D14' }}>
+                <td colSpan={4} style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
+                <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>
+                  {formatDisplay(grandTotalCost)}
+                </td>
+                <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>—</td>
+                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>{formatDisplay(grandTotalCostDisplay)}</td>
+                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>{formatDisplay(grandTotalDisplay)}</td>
+                <td style={{ ...tdStyle, color: (grandTotalDisplay - grandTotalCostDisplay) >= 0 ? '#10B981' : '#EF4444', fontWeight: 700 }}>
+                  {(grandTotalDisplay - grandTotalCostDisplay) >= 0 ? '+' : ''}{formatDisplay(grandTotalDisplay - grandTotalCostDisplay)}
+                </td>
+                <td style={tdStyle} />
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   )
 }

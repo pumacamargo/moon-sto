@@ -11,7 +11,7 @@ const GROUP_COLORS: Record<string, string> = {
   Protection: '#F59E0B',
 }
 
-export function Dashboard() {
+export default function Dashboard() {
   const { convert, formatDisplay } = useCurrency()
 
   const totalDisplay = convert(TOTAL_CAD, 'CAD')
@@ -106,7 +106,7 @@ export function Dashboard() {
                 </Pie>
                 <Tooltip
                   contentStyle={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 8, color: '#F1F5F9', fontSize: 12 }}
-                  formatter={(val: number) => [formatDisplay(convert(val, 'CAD')), '']}
+                  formatter={(val) => [formatDisplay(convert(Number(val), 'CAD')), '']}
                 />
                 <Legend
                   formatter={(value) => <span style={{ color: '#94A3B8', fontSize: 12 }}>{value}</span>}
@@ -127,7 +127,7 @@ export function Dashboard() {
                 <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 8, color: '#F1F5F9', fontSize: 12 }}
-                  formatter={(val: number) => [`${val.toFixed(1)}%`, '']}
+                  formatter={(val) => [`${Number(val).toFixed(1)}%`, '']}
                 />
                 <Legend formatter={(value) => <span style={{ color: '#94A3B8', fontSize: 12 }}>{value}</span>} />
                 <Bar dataKey="target" name="Target %" fill="#6366F1" radius={[4, 4, 0, 0]} />
