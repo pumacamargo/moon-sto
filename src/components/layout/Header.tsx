@@ -1,3 +1,5 @@
+import { NavLink } from 'react-router-dom'
+import { Moon, Settings } from 'lucide-react'
 import { useCurrency } from '../../contexts/CurrencyContext'
 import { formatCurrency } from '../../lib/currency'
 import { TOTAL_CAD } from '../../lib/mockData'
@@ -17,39 +19,47 @@ export function Header({ title }: HeaderProps) {
 
   return (
     <header
-      className="flex items-center justify-between border-b px-6"
+      className="flex items-center justify-between border-b px-4 md:px-6"
       style={{ height: 56, background: '#0D0D14', borderColor: '#1E1E2E' }}
     >
-      <h1 className="text-base font-semibold" style={{ color: '#F1F5F9' }}>
-        {title}
-      </h1>
+      {/* Mobile: logo. Desktop: page title */}
+      <div className="flex items-center gap-2">
+        <Moon size={18} fill="#6366F1" color="#6366F1" className="md:hidden" />
+        <span className="text-sm font-bold tracking-wide md:hidden" style={{ color: '#6366F1' }}>
+          moonsto
+        </span>
+        <h1 className="hidden md:block text-base font-semibold" style={{ color: '#F1F5F9' }}>
+          {title}
+        </h1>
+      </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Total portfolio — hidden on very small screens */}
         <div className="text-right hidden sm:block">
-          <p className="text-xs" style={{ color: '#94A3B8' }}>
-            Total Portfolio
-          </p>
-          <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>
-            {formattedTotal}
-          </p>
+          <p className="text-xs" style={{ color: '#94A3B8' }}>Total</p>
+          <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{formattedTotal}</p>
         </div>
 
+        {/* Currency selector */}
         <select
           value={displayCurrency}
           onChange={(e) => setDisplayCurrency(e.target.value as Currency)}
-          className="rounded-lg border px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-          style={{
-            background: '#12121A',
-            borderColor: '#1E1E2E',
-            color: '#F1F5F9',
-          }}
+          className="rounded-lg border px-2 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+          style={{ background: '#12121A', borderColor: '#1E1E2E', color: '#F1F5F9' }}
         >
           {currencyOptions.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
+
+        {/* Settings — mobile only (desktop uses sidebar) */}
+        <NavLink
+          to="/settings"
+          className="md:hidden flex items-center justify-center rounded-lg w-8 h-8 transition-colors hover:bg-white/5"
+          style={({ isActive }) => ({ color: isActive ? '#818CF8' : '#94A3B8' })}
+        >
+          <Settings size={18} />
+        </NavLink>
       </div>
     </header>
   )
