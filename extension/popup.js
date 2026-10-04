@@ -40,16 +40,25 @@ function setLoading(on) {
 // ─── Firestore REST ──────────────────────────────────────────
 
 async function firestoreAdd(collection, fields) {
+  const body = JSON.stringify({ fields })
+  console.log('[moonsto] POST to Firestore, fields keys:', Object.keys(fields))
+  console.log('[moonsto] body size:', body.length, 'chars')
   const res = await fetch(`${FS_BASE}/${collection}?key=${FIREBASE_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fields }),
+    body,
   })
+  const json = await res.json().catch(() => ({}))
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message || `HTTP ${res.status}`)
+    console.error('[moonsto] Firestore error response:', JSON.stringify(json))
+    // log each field size to find the culprit
+    for (const [k, v] of Object.entries(fields)) {
+      const val = v.stringValue ?? v.integerValue ?? v.booleanValue ?? v.timestampValue ?? '?'
+      console.log(`[moonsto]   field "${k}": type=${Object.keys(v)[0]}, len=${String(val).length}`)
+    }
+    throw new Error(json.error?.message || `HTTP ${res.status}`)
   }
-  return res.json()
+  return json
 }
 
 async function firestoreList(collection, pageSize = 5) {
@@ -123,7 +132,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       })
 
       const b = detectBroker(result.url)
-      const sizeKB = Math.round(result.text.length / 1024)
+      // strip null bytes and other control chars Firestore rejects
+      const cleanText = result.text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ' ').trim()
+      const sizeKB = Math.round(cleanText.length / 1024)
+      console.log('[moonsto] text length after clean:', cleanText.length, 'chars')
 
       showStatus(`Guardando ${sizeKB} KB en Firestore...`, 'info')
 
@@ -132,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         brokerDomain: { stringValue: b?.domain || new URL(result.url).hostname },
         pageUrl:      { stringValue: result.url },
         pageTitle:    { stringValue: result.title },
-        text:         { stringValue: result.text },
+        text:         { stringValue: cleanText },
         capturedAt:   { timestampValue: new Date().toISOString() },
         status:       { stringValue: 'pending_analysis' },
         sizeKB:       { integerValue: String(sizeKB) },
