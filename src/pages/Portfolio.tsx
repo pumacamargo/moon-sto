@@ -4,6 +4,7 @@ import { useCurrency } from '../contexts/CurrencyContext'
 import { mockPositions, mockAccounts } from '../lib/mockData'
 import { formatCurrency, formatPct } from '../lib/currency'
 import { useCetesDirecto } from '../hooks/useCetesDirecto'
+import { useGbm } from '../hooks/useGbm'
 import type { Position } from '../types'
 
 const thStyle: React.CSSProperties = {
@@ -23,14 +24,15 @@ const tdStyle: React.CSSProperties = {
   borderBottom: '1px solid #0D0D14',
 }
 
-// IDs of mock positions that get replaced by real CETESdirecto data
 const CETES_MOCK_IDS = new Set(['11', '14'])
+const GBM_MOCK_IDS   = new Set(['12', '13'])
 
 export default function Portfolio() {
   const { convert, formatDisplay, displayCurrency } = useCurrency()
   const [filterAccount, setFilterAccount] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
   const cetesData = useCetesDirecto()
+  const gbmData   = useGbm()
 
   // Build real positions from CETESdirecto captures
   const cetesPositions = useMemo<Position[]>(() => {
@@ -74,14 +76,33 @@ export default function Portfolio() {
     return positions
   }, [cetesData])
 
-  // Merge: remove mock CETES/BONDDIA entries, inject real ones
+  // Build real GBM positions
+  const gbmPositions = useMemo<Position[]>(() => {
+    if (!gbmData.capture) return []
+    const now = gbmData.capture.capturedAt
+    return gbmData.capture.posiciones.map(pos => ({
+      id:           `gbm-${pos.ticker.replace(/\s/g, '-')}`,
+      accountId:    '5',
+      ticker:       pos.ticker,
+      category:     pos.seccion === 'capitales' ? 'REITs / InfrastructureM' : 'Reporto',
+      value:        pos.impXCto,
+      currentValue: pos.valorMerc,
+      currency:     'MXN' as const,
+      pctGain:      pos.varHistPct,
+      lastUpdated:  now,
+    }))
+  }, [gbmData])
+
+  // Merge: remove mock entries, inject real ones
   const allPositions = useMemo<Position[]>(() => {
-    const hasCetesReal = cetesPositions.length > 0
-    const base = hasCetesReal
-      ? mockPositions.filter(p => !CETES_MOCK_IDS.has(p.id))
-      : mockPositions
-    return [...base, ...cetesPositions]
-  }, [cetesPositions])
+    const hasCetes = cetesPositions.length > 0
+    const hasGbm   = gbmPositions.length > 0
+    return mockPositions
+      .filter(p => !(hasCetes && CETES_MOCK_IDS.has(p.id)))
+      .filter(p => !(hasGbm   && GBM_MOCK_IDS.has(p.id)))
+      .concat(cetesPositions)
+      .concat(gbmPositions)
+  }, [cetesPositions, gbmPositions])
 
   const categories = Array.from(new Set(allPositions.map(p => p.category))).sort()
 
@@ -100,7 +121,8 @@ export default function Portfolio() {
   const grandTotalCost = filtered.reduce((s, p) => s + p.value, 0)
   const grandTotalCostDisplay = filtered.reduce((s, p) => s + convert(p.value, p.currency), 0)
 
-  const showStaleWarning = !cetesData.loading && cetesData.isStale
+  const showStaleWarning = (!cetesData.loading && cetesData.isStale) ||
+                           (!gbmData.loading && gbmData.isStale)
 
   return (
     <div className="flex flex-col gap-3 md:gap-4">
@@ -117,11 +139,23 @@ export default function Portfolio() {
           gap: 8,
         }}>
           <span>⚠</span>
-          <span>
-            CETESdirecto{cetesData.lastUpdated
-              ? ` — última captura: ${cetesData.lastUpdated.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`
-              : ' — sin capturas'}
-            . Abre la extensión en CETESdirecto y captura BONDDIA y CETES para actualizar.
+          <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {!cetesData.loading && cetesData.isStale && (
+              <span>
+                CETESdirecto{cetesData.lastUpdated
+                  ? ` — última captura: ${cetesData.lastUpdated.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : ' — sin capturas'}
+                . Captura BONDDIA y CETES para actualizar.
+              </span>
+            )}
+            {!gbmData.loading && gbmData.isStale && (
+              <span>
+                GBM{gbmData.lastUpdated
+                  ? ` — última captura: ${gbmData.lastUpdated.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : ' — sin capturas'}
+                . Captura la página de tu cuenta en GBM para actualizar.
+              </span>
+            )}
           </span>
         </div>
       )}
