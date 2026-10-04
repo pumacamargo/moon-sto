@@ -40,9 +40,11 @@ export function useCetesDirecto(): CetesDirectoData {
           where('brokerDomain', '==', 'www.cetesdirecto.com'),
         ))
 
-        // Sort newest first in JS to avoid needing a composite Firestore index
+        const tsToMs = (ts: any): number =>
+          typeof ts?.toMillis === 'function' ? ts.toMillis() : new Date(ts).getTime()
+
         const docs = snap.docs.sort((a, b) =>
-          b.data().capturedAt.localeCompare(a.data().capturedAt)
+          tsToMs(b.data().capturedAt) - tsToMs(a.data().capturedAt)
         )
 
         let bonddia: BonddiaCapture | null = null
@@ -51,7 +53,9 @@ export function useCetesDirecto(): CetesDirectoData {
 
         for (const doc of docs) {
           const f = doc.data()
-          const parsed = parseCetesDirectoCapture(f.text, new Date(f.capturedAt))
+          const capturedAt = typeof f.capturedAt?.toDate === 'function'
+            ? f.capturedAt.toDate() : new Date(f.capturedAt)
+          const parsed = parseCetesDirectoCapture(f.text, capturedAt)
           if (!parsed) continue
           if (parsed.type === 'bonddia' && !bonddia) bonddia = parsed
           else if (parsed.type === 'cetes' && !cetes) cetes = parsed

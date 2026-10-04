@@ -26,14 +26,19 @@ export function useGbm(): GbmData {
           where('brokerDomain', '==', 'www.appgbm.com'),
         ))
 
+        const tsToMs = (ts: any): number =>
+          typeof ts?.toMillis === 'function' ? ts.toMillis() : new Date(ts).getTime()
+
         const docs = snap.docs.sort((a, b) =>
-          b.data().capturedAt.localeCompare(a.data().capturedAt)
+          tsToMs(b.data().capturedAt) - tsToMs(a.data().capturedAt)
         )
 
         let capture: GbmCapture | null = null
         for (const doc of docs) {
           const f = doc.data()
-          const parsed = parseGbm(f.text, new Date(f.capturedAt))
+          const capturedAt = typeof f.capturedAt?.toDate === 'function'
+            ? f.capturedAt.toDate() : new Date(f.capturedAt)
+          const parsed = parseGbm(f.text, capturedAt)
           if (parsed) { capture = parsed; break }
         }
 
