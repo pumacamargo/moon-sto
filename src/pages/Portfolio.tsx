@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
 import { mockPositions, mockAccounts } from '../lib/mockData'
@@ -44,11 +44,12 @@ export default function Portfolio() {
   const grandTotalCostDisplay = filtered.reduce((s, p) => s + convert(p.value, p.currency), 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'flex', gap: 12 }}>
+    <div className="flex flex-col gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
         <select
           value={filterAccount}
           onChange={e => setFilterAccount(e.target.value)}
+          className="w-full min-w-0 sm:w-auto"
           style={{ background: '#12121A', border: '1px solid #1E1E2E', color: '#F1F5F9', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}
         >
           <option value="all">All Accounts</option>
@@ -59,6 +60,7 @@ export default function Portfolio() {
         <select
           value={filterCategory}
           onChange={e => setFilterCategory(e.target.value)}
+          className="w-full min-w-0 sm:w-auto"
           style={{ background: '#12121A', border: '1px solid #1E1E2E', color: '#F1F5F9', borderRadius: 8, padding: '6px 12px', fontSize: 13 }}
         >
           <option value="all">All Categories</option>
@@ -68,8 +70,8 @@ export default function Portfolio() {
         </select>
       </div>
 
-      <Card style={{ padding: 0 }}>
-        <div style={{ overflowX: 'auto' }}>
+      <Card className="overflow-hidden" style={{ padding: 0 }}>
+        <div className="table-scroll">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#0D0D14' }}>
@@ -90,7 +92,7 @@ export default function Portfolio() {
                 const accTotal = positions.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
                 const accCost = positions.reduce((s, p) => s + convert(p.value, p.currency), 0)
                 return (
-                  <>
+                  <Fragment key={account.id}>
                     <tr key={`hdr-${account.id}`} style={{ background: 'rgba(99,102,241,0.05)' }}>
                       <td colSpan={10} style={{ padding: '8px 10px', color: '#818CF8', fontWeight: 700, fontSize: 12, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
                         {account.name} — {account.location} ({account.currency})
@@ -130,7 +132,7 @@ export default function Portfolio() {
                       </td>
                       <td style={tdStyle} />
                     </tr>
-                  </>
+                  </Fragment>
                 )
               })}
               <tr style={{ borderTop: '2px solid #1E1E2E', background: '#0D0D14' }}>

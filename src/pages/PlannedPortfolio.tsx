@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
 import { mockPlannedGroups, TOTAL_CAD } from '../lib/mockData'
@@ -59,15 +59,15 @@ export function PlannedPortfolio() {
     .filter(s => Math.abs(s.diffVal) > 1)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="flex flex-col gap-4 md:gap-5">
       {/* Table 1: by Group + Category */}
-      <Card style={{ padding: 0 }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #1E1E2E' }}>
+      <Card className="overflow-hidden" style={{ padding: 0 }}>
+        <div className="px-3 py-3 sm:px-4" style={{ borderBottom: '1px solid #1E1E2E' }}>
           <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Planned Allocation — by Group
           </span>
         </div>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-scroll">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#0D0D14' }}>
@@ -91,7 +91,7 @@ export function PlannedPortfolio() {
                 const gCurrentVal = g.categories.reduce((s, c) => s + c.currentValue, 0)
                 const gNetPnl = g.categories.reduce((s, c) => s + (c.netPnl ?? 0), 0)
                 return (
-                  <>
+                  <Fragment key={g.id}>
                     {g.categories.map((c, idx) => {
                       const diff = c.currentPct - c.targetPct
                       const valDiff = c.currentValue - c.targetValue
@@ -122,8 +122,7 @@ export function PlannedPortfolio() {
                       )
                     })}
                     <tr key={`sub-${g.id}`} style={{ background: 'rgba(0,0,0,0.25)', borderBottom: '2px solid #1E1E2E' }}>
-                      <td style={{ ...tdStyle, textAlign: 'left', color: GROUP_COLOR[g.name], fontWeight: 700 }}>Subtotal {g.name}</td>
-                      <td style={tdStyle} />
+                      <td colSpan={3} style={{ ...tdStyle, textAlign: 'left', color: GROUP_COLOR[g.name], fontWeight: 700 }}>Subtotal {g.name}</td>
                       <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>{gTargetPct}%</td>
                       <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>{gCurrentPct.toFixed(2)}%</td>
                       <td style={{ ...tdStyle, color: (gCurrentPct - gTargetPct) >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
@@ -138,7 +137,7 @@ export function PlannedPortfolio() {
                         {formatDisplay(convert(gNetPnl, 'CAD'))}
                       </td>
                     </tr>
-                  </>
+                  </Fragment>
                 )
               })}
               {/* Grand total */}
@@ -166,13 +165,13 @@ export function PlannedPortfolio() {
       </Card>
 
       {/* Table 2: by Location */}
-      <Card style={{ padding: 0 }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid #1E1E2E' }}>
+      <Card className="overflow-hidden" style={{ padding: 0 }}>
+        <div className="px-3 py-3 sm:px-4" style={{ borderBottom: '1px solid #1E1E2E' }}>
           <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Allocation by Location
           </span>
         </div>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-scroll">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#0D0D14' }}>
@@ -228,6 +227,7 @@ export function PlannedPortfolio() {
       <div>
         <button
           onClick={() => setShowSuggestions(s => !s)}
+          className="w-full sm:w-auto"
           style={{
             background: showSuggestions ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)',
             border: '1px solid rgba(99,102,241,0.4)',
@@ -246,20 +246,17 @@ export function PlannedPortfolio() {
           <Card style={{ marginTop: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {suggestions.map(s => (
-                <div key={s.category} style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '10px 14px',
+                <div key={`${s.category}-${s.location}`} className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3" style={{
+                  padding: '10px 12px',
                   borderRadius: 8,
                   background: s.diffVal > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
                   border: `1px solid ${s.diffVal > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
                 }}>
-                  <div>
+                  <div className="min-w-0 break-words">
                     <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: 13 }}>{s.category}</span>
                     <span style={{ color: '#94A3B8', fontSize: 12, marginLeft: 8 }}>({s.location})</span>
                   </div>
-                  <span style={{
+                  <span className="shrink-0 tabular-nums" style={{
                     color: s.diffVal > 0 ? '#10B981' : '#EF4444',
                     fontWeight: 700,
                     fontSize: 13,

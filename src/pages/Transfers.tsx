@@ -30,24 +30,24 @@ export function Transfers() {
   const totalArriveCAD = mockTransfers.reduce((s, t) => s + t.arriveInCAD, 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-        <div style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12, padding: 16 }}>
+    <div className="flex flex-col gap-3 md:gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
+        <div className="min-w-0 p-3 sm:p-4" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
           <div style={{ color: '#94A3B8', fontSize: 11, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Sent</div>
-          <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 20 }}>{formatCurrency(totalSent, 'CAD')}</div>
+          <div style={{ color: '#F1F5F9', fontWeight: 700 }} className="text-lg sm:text-xl tabular-nums break-words">{formatCurrency(totalSent, 'CAD')}</div>
         </div>
-        <div style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12, padding: 16 }}>
+        <div className="min-w-0 p-3 sm:p-4" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
           <div style={{ color: '#94A3B8', fontSize: 11, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Arrived (CAD)</div>
-          <div style={{ color: '#10B981', fontWeight: 700, fontSize: 20 }}>{formatCurrency(totalArriveCAD, 'CAD')}</div>
+          <div style={{ color: '#10B981', fontWeight: 700 }} className="text-lg sm:text-xl tabular-nums break-words">{formatCurrency(totalArriveCAD, 'CAD')}</div>
         </div>
-        <div style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12, padding: 16 }}>
+        <div className="min-w-0 p-3 sm:p-4" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
           <div style={{ color: '#94A3B8', fontSize: 11, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Commission</div>
-          <div style={{ color: '#EF4444', fontWeight: 700, fontSize: 20 }}>{formatCurrency(totalCommission, 'CAD')}</div>
+          <div style={{ color: '#EF4444', fontWeight: 700 }} className="text-lg sm:text-xl tabular-nums break-words">{formatCurrency(totalCommission, 'CAD')}</div>
         </div>
       </div>
 
-      <Card style={{ padding: 0 }}>
-        <div style={{ overflowX: 'auto' }}>
+      <Card className="overflow-hidden" style={{ padding: 0 }}>
+        <div className="table-scroll">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#0D0D14' }}>

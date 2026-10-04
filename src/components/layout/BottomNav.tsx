@@ -20,13 +20,13 @@ export function BottomNav() {
           key={to}
           to={to}
           end={to === '/'}
-          className="flex flex-col items-center justify-center flex-1 py-2 gap-0.5 text-xs font-medium transition-colors"
+          className="flex min-w-0 flex-col items-center justify-center flex-1 py-2 gap-0.5 text-[11px] leading-tight font-medium transition-colors"
           style={({ isActive }) => ({
             color: isActive ? '#818CF8' : '#4B5563',
           })}
         >
           <Icon size={20} />
-          <span>{label}</span>
+          <span className="max-w-full truncate">{label}</span>
         </NavLink>
       ))}
     </nav>

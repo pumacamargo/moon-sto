@@ -63,8 +63,8 @@ export function Performance() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+    <div className="flex flex-col gap-4 md:gap-5">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <StatCard
           label="Best Performer"
           value={best?.ticker ?? '—'}
@@ -78,7 +78,7 @@ export function Performance() {
           trend={worst?.pctGain}
         />
         <StatCard
-          label={`Total Unrealized Gain (${displayCurrency})`}
+          label={`Unrealized Gain (${displayCurrency})`}
           value={formatDisplay(totalGain)}
           trend={totalGain}
         />
@@ -88,8 +88,8 @@ export function Performance() {
         />
       </div>
 
-      <Card style={{ padding: 0 }}>
-        <div style={{ overflowX: 'auto' }}>
+      <Card className="overflow-hidden" style={{ padding: 0 }}>
+        <div className="table-scroll">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#0D0D14' }}>

@@ -19,12 +19,11 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   return (
     <aside
-      className="flex flex-col border-r transition-all duration-300"
+      className="sticky top-0 flex h-screen flex-col border-r transition-all duration-300"
       style={{
         width: collapsed ? 64 : 220,
         background: '#0D0D14',
         borderColor: '#1E1E2E',
-        minHeight: '100vh',
       }}
     >
       <div

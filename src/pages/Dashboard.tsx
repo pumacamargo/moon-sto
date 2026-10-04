@@ -59,8 +59,8 @@ export default function Dashboard() {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+    <div className="flex flex-col gap-4 md:gap-6">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <StatCard
           label="Total Portfolio"
           value={formatDisplay(totalDisplay)}
@@ -83,20 +83,20 @@ export default function Dashboard() {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="grid grid-cols-1 gap-3 md:gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Allocation by Group</CardTitle>
           </CardHeader>
-          <div style={{ height: 260 }}>
+          <div className="h-[240px] sm:h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={70}
-                  outerRadius={110}
+                  innerRadius="55%"
+                  outerRadius="80%"
                   paddingAngle={3}
                   dataKey="value"
                 >
@@ -120,9 +120,9 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Target vs Current % by Location</CardTitle>
           </CardHeader>
-          <div style={{ height: 260 }}>
+          <div className="h-[240px] sm:h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={locationData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={locationData} margin={{ top: 10, right: 4, left: -24, bottom: 0 }}>
                 <XAxis dataKey="location" tick={{ fill: '#94A3B8', fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip
@@ -142,7 +142,7 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle>Group Summary</CardTitle>
         </CardHeader>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-scroll -mx-3 sm:mx-0">
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>

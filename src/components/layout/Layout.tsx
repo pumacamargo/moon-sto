@@ -19,7 +19,7 @@ export function Layout() {
   const title = pageTitles[location.pathname] ?? 'Moonsto'
 
   return (
-    <div className="flex" style={{ minHeight: '100vh', background: '#0A0A0F' }}>
+    <div className="flex min-h-dvh w-full" style={{ background: '#0A0A0F' }}>
       {/* Sidebar — desktop only */}
       <div className="hidden md:flex">
         <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
@@ -28,10 +28,7 @@ export function Layout() {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
         <Header title={title} />
-        <main
-          className="flex-1 overflow-auto p-4 md:p-6"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}
-        >
+        <main className="flex-1 min-w-0 px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+76px)] sm:px-4 sm:pt-4 md:p-6">
           <Outlet />
         </main>
       </div>

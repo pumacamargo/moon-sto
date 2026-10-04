@@ -19,11 +19,11 @@ export function Header({ title }: HeaderProps) {
 
   return (
     <header
-      className="flex items-center justify-between border-b px-4 md:px-6"
+      className="sticky top-0 z-40 flex items-center justify-between gap-2 border-b px-3 sm:px-4 md:px-6"
       style={{ height: 56, background: '#0D0D14', borderColor: '#1E1E2E' }}
     >
       {/* Mobile: logo. Desktop: page title */}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <Moon size={18} fill="#6366F1" color="#6366F1" className="md:hidden" />
         <span className="text-sm font-bold tracking-wide md:hidden" style={{ color: '#6366F1' }}>
           moonsto
@@ -33,7 +33,7 @@ export function Header({ title }: HeaderProps) {
         </h1>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         {/* Total portfolio — hidden on very small screens */}
         <div className="text-right hidden sm:block">
           <p className="text-xs" style={{ color: '#94A3B8' }}>Total</p>
@@ -55,7 +55,7 @@ export function Header({ title }: HeaderProps) {
         {/* Settings — mobile only (desktop uses sidebar) */}
         <NavLink
           to="/settings"
-          className="md:hidden flex items-center justify-center rounded-lg w-8 h-8 transition-colors hover:bg-white/5"
+          className="md:hidden flex items-center justify-center rounded-lg w-9 h-9 transition-colors hover:bg-white/5"
           style={({ isActive }) => ({ color: isActive ? '#818CF8' : '#94A3B8' })}
         >
           <Settings size={18} />

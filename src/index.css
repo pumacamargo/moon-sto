@@ -15,6 +15,11 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background-color: #0A0A0F;
@@ -25,6 +30,29 @@ body {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+/* Tables: keep cells on one line so they scroll horizontally instead of wrapping into tall, cramped rows */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.table-scroll th,
+.table-scroll td {
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  /* iOS Safari zooms the page when focusing form controls under 16px */
+  select,
+  input,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 ::-webkit-scrollbar {

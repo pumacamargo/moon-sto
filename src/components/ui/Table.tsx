@@ -3,7 +3,7 @@ import type { ReactNode, HTMLAttributes, ThHTMLAttributes, TdHTMLAttributes } fr
 
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="table-scroll">
       <table className={clsx('w-full text-sm', className)}>{children}</table>
     </div>
   )

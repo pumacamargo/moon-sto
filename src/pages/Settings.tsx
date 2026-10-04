@@ -12,10 +12,11 @@ export function Settings() {
   const [showToken, setShowToken] = useState(false)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 720 }}>
+    <div className="flex w-full max-w-[720px] flex-col gap-4 md:gap-5">
       {/* Accounts */}
       <Card>
         <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Accounts</div>
+        <div className="table-scroll -mx-3 sm:mx-0">
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
@@ -36,12 +37,13 @@ export function Settings() {
             ))}
           </tbody>
         </table>
+        </div>
       </Card>
 
       {/* Exchange Rates */}
       <Card>
         <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Exchange Rates</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-2.5">
           {[
             { label: 'CAD → MXN', value: mockExchangeRates.CAD_MXN },
             { label: 'CAD → JPY', value: mockExchangeRates.CAD_JPY },
@@ -52,7 +54,7 @@ export function Settings() {
           ].map(r => (
             <div key={r.label} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '10px 14px', background: '#0D0D14', borderRadius: 8, border: '1px solid #1E1E2E',
+              padding: '10px 12px', gap: 8, background: '#0D0D14', borderRadius: 8, border: '1px solid #1E1E2E',
             }}>
               <span style={{ color: '#94A3B8', fontSize: 13 }}>{r.label}</span>
               <span style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 14 }}>{r.value}</span>
@@ -67,18 +69,20 @@ export function Settings() {
       {/* Extension Token */}
       <Card>
         <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Extension Token</div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-2.5">
           <input
             type={showToken ? 'text' : 'password'}
             value={token}
             readOnly
+            className="w-full min-w-0 sm:w-auto sm:flex-1"
             style={{
-              flex: 1, background: '#0D0D14', border: '1px solid #1E1E2E', color: '#F1F5F9',
+              background: '#0D0D14', border: '1px solid #1E1E2E', color: '#F1F5F9',
               borderRadius: 8, padding: '8px 14px', fontSize: 14, fontFamily: 'monospace',
             }}
           />
           <button
             onClick={() => setShowToken(s => !s)}
+            className="flex-1 sm:flex-none"
             style={{
               background: '#1E1E2E', border: 'none', color: '#94A3B8',
               padding: '8px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
@@ -87,6 +91,7 @@ export function Settings() {
             {showToken ? 'Hide' : 'Show'}
           </button>
           <button
+            className="flex-1 sm:flex-none"
             onClick={() => setToken(Math.random().toString(36).slice(2, 14).toUpperCase())}
             style={{
               background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
@@ -101,13 +106,14 @@ export function Settings() {
       {/* Display Currency */}
       <Card>
         <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Display Currency</div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           {currencies.map(c => (
             <button
               key={c}
               onClick={() => setDisplayCurrency(c)}
+              className="flex-1 sm:flex-none sm:px-6"
               style={{
-                padding: '8px 24px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                paddingTop: 8, paddingBottom: 8, borderRadius: 8, border: 'none', cursor: 'pointer',
                 background: displayCurrency === c ? '#6366F1' : '#1E1E2E',
                 color: displayCurrency === c ? '#fff' : '#94A3B8',
                 fontWeight: displayCurrency === c ? 700 : 400,
