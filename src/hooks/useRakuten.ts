@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { parseRakuten, type RakutenCapture } from '../lib/parsers/rakuten'
 
@@ -24,11 +24,14 @@ export function useRakuten(): RakutenData {
         const snap = await getDocs(query(
           collection(db, 'page_captures'),
           where('brokerDomain', '==', 'rakuten-sec.co.jp'),
-          orderBy('capturedAt', 'desc'),
         ))
 
+        const docs = snap.docs.sort((a, b) =>
+          b.data().capturedAt.localeCompare(a.data().capturedAt)
+        )
+
         let capture: RakutenCapture | null = null
-        for (const doc of snap.docs) {
+        for (const doc of docs) {
           const f = doc.data()
           const parsed = parseRakuten(f.text, new Date(f.capturedAt))
           if (parsed) { capture = parsed; break }

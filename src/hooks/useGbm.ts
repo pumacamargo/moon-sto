@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import { parseGbm, type GbmCapture } from '../lib/parsers/gbm'
 
@@ -24,11 +24,14 @@ export function useGbm(): GbmData {
         const snap = await getDocs(query(
           collection(db, 'page_captures'),
           where('brokerDomain', '==', 'www.appgbm.com'),
-          orderBy('capturedAt', 'desc'),
         ))
 
+        const docs = snap.docs.sort((a, b) =>
+          b.data().capturedAt.localeCompare(a.data().capturedAt)
+        )
+
         let capture: GbmCapture | null = null
-        for (const doc of snap.docs) {
+        for (const doc of docs) {
           const f = doc.data()
           const parsed = parseGbm(f.text, new Date(f.capturedAt))
           if (parsed) { capture = parsed; break }

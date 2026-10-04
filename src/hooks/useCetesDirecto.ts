@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import {
   parseCetesDirectoCapture,
@@ -38,14 +38,18 @@ export function useCetesDirecto(): CetesDirectoData {
         const snap = await getDocs(query(
           collection(db, 'page_captures'),
           where('brokerDomain', '==', 'www.cetesdirecto.com'),
-          orderBy('capturedAt', 'desc'),
         ))
+
+        // Sort newest first in JS to avoid needing a composite Firestore index
+        const docs = snap.docs.sort((a, b) =>
+          b.data().capturedAt.localeCompare(a.data().capturedAt)
+        )
 
         let bonddia: BonddiaCapture | null = null
         let cetes: CetesCapture | null = null
         const deposits: DepositCapture[] = []
 
-        for (const doc of snap.docs) {
+        for (const doc of docs) {
           const f = doc.data()
           const parsed = parseCetesDirectoCapture(f.text, new Date(f.capturedAt))
           if (!parsed) continue
