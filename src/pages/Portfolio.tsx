@@ -5,6 +5,7 @@ import { mockPositions, mockAccounts } from '../lib/mockData'
 import { formatCurrency, formatPct } from '../lib/currency'
 import { useCetesDirecto } from '../hooks/useCetesDirecto'
 import { useGbm } from '../hooks/useGbm'
+import { useRakuten } from '../hooks/useRakuten'
 import type { Position } from '../types'
 
 const thStyle: React.CSSProperties = {
@@ -24,15 +25,17 @@ const tdStyle: React.CSSProperties = {
   borderBottom: '1px solid #0D0D14',
 }
 
-const CETES_MOCK_IDS = new Set(['11', '14'])
-const GBM_MOCK_IDS   = new Set(['12', '13'])
+const CETES_MOCK_IDS   = new Set(['11', '14'])
+const GBM_MOCK_IDS     = new Set(['12', '13'])
+const RAKUTEN_MOCK_IDS = new Set(['15', '16', '17'])
 
 export default function Portfolio() {
   const { convert, formatDisplay, displayCurrency } = useCurrency()
   const [filterAccount, setFilterAccount] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
   const cetesData = useCetesDirecto()
-  const gbmData   = useGbm()
+  const gbmData     = useGbm()
+  const rakutenData = useRakuten()
 
   // Build real positions from CETESdirecto captures
   const cetesPositions = useMemo<Position[]>(() => {
@@ -93,16 +96,37 @@ export default function Portfolio() {
     }))
   }, [gbmData])
 
+  // Build real Rakuten positions
+  const rakutenPositions = useMemo<Position[]>(() => {
+    if (!rakutenData.capture) return []
+    const now = rakutenData.capture.capturedAt
+    return rakutenData.capture.posiciones.map(pos => ({
+      id:           `rakuten-${pos.tickerCode}`,
+      accountId:    '7',
+      ticker:       pos.tickerCode,
+      name:         pos.name,
+      category:     'Productive Assets JP',
+      value:        pos.costBasis,
+      currentValue: pos.marketValue,
+      currency:     'JPY' as const,
+      pctGain:      pos.pctGain,
+      lastUpdated:  now,
+    }))
+  }, [rakutenData])
+
   // Merge: remove mock entries, inject real ones
   const allPositions = useMemo<Position[]>(() => {
-    const hasCetes = cetesPositions.length > 0
-    const hasGbm   = gbmPositions.length > 0
+    const hasCetes   = cetesPositions.length > 0
+    const hasGbm     = gbmPositions.length > 0
+    const hasRakuten = rakutenPositions.length > 0
     return mockPositions
-      .filter(p => !(hasCetes && CETES_MOCK_IDS.has(p.id)))
-      .filter(p => !(hasGbm   && GBM_MOCK_IDS.has(p.id)))
+      .filter(p => !(hasCetes   && CETES_MOCK_IDS.has(p.id)))
+      .filter(p => !(hasGbm     && GBM_MOCK_IDS.has(p.id)))
+      .filter(p => !(hasRakuten && RAKUTEN_MOCK_IDS.has(p.id)))
       .concat(cetesPositions)
       .concat(gbmPositions)
-  }, [cetesPositions, gbmPositions])
+      .concat(rakutenPositions)
+  }, [cetesPositions, gbmPositions, rakutenPositions])
 
   const categories = Array.from(new Set(allPositions.map(p => p.category))).sort()
 
@@ -122,7 +146,8 @@ export default function Portfolio() {
   const grandTotalCostDisplay = filtered.reduce((s, p) => s + convert(p.value, p.currency), 0)
 
   const showStaleWarning = (!cetesData.loading && cetesData.isStale) ||
-                           (!gbmData.loading && gbmData.isStale)
+                           (!gbmData.loading && gbmData.isStale) ||
+                           (!rakutenData.loading && rakutenData.isStale)
 
   return (
     <div className="flex flex-col gap-3 md:gap-4">
@@ -154,6 +179,14 @@ export default function Portfolio() {
                   ? ` — última captura: ${gbmData.lastUpdated.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`
                   : ' — sin capturas'}
                 . Captura la página de tu cuenta en GBM para actualizar.
+              </span>
+            )}
+            {!rakutenData.loading && rakutenData.isStale && (
+              <span>
+                Rakuten{rakutenData.lastUpdated
+                  ? ` — última captura: ${rakutenData.lastUpdated.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : ' — sin capturas'}
+                . Captura "List of owned items" en Rakuten para actualizar.
               </span>
             )}
           </span>
