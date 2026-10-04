@@ -123,6 +123,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       })
 
       const b = detectBroker(result.url)
+      const MAX_CHARS = 800_000 // Firestore string limit ~1MB; cap at ~800KB
+      const truncated = result.html.length > MAX_CHARS
+      const html = truncated ? result.html.slice(0, MAX_CHARS) : result.html
       const sizeKB = Math.round(result.html.length / 1024)
 
       showStatus(`Guardando ${sizeKB} KB en Firestore...`, 'info')
@@ -132,10 +135,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         brokerDomain: { stringValue: b?.domain || new URL(result.url).hostname },
         pageUrl:      { stringValue: result.url },
         pageTitle:    { stringValue: result.title },
-        html:         { stringValue: result.html },
+        html:         { stringValue: html },
         capturedAt:   { timestampValue: new Date().toISOString() },
         status:       { stringValue: 'pending_analysis' },
         sizeKB:       { integerValue: sizeKB },
+        truncated:    { booleanValue: truncated },
       })
 
       showStatus(`✓ Captura guardada (${sizeKB} KB)`, 'success')
