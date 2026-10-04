@@ -136,9 +136,12 @@ export default function Portfolio() {
     return true
   })
 
-  const byAccount = mockAccounts.map(acc => ({
-    account: acc,
-    positions: filtered.filter(p => p.accountId === acc.id),
+  const accountById = Object.fromEntries(mockAccounts.map(a => [a.id, a]))
+
+  const COUNTRY_ORDER = ['Canada', 'Mexico', 'Japan'] as const
+  const byCountry = COUNTRY_ORDER.map(country => ({
+    country,
+    positions: filtered.filter(p => accountById[p.accountId]?.location === country),
   })).filter(g => g.positions.length > 0)
 
   const grandTotalDisplay = filtered.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
@@ -235,23 +238,26 @@ export default function Portfolio() {
               </tr>
             </thead>
             <tbody>
-              {byAccount.map(({ account, positions }) => {
-                const accTotal = positions.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
-                const accCost = positions.reduce((s, p) => s + convert(p.value, p.currency), 0)
+              {byCountry.map(({ country, positions }) => {
+                const countryTotal = positions.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
+                const countryCost  = positions.reduce((s, p) => s + convert(p.value, p.currency), 0)
+                const countryDiff  = countryTotal - countryCost
+                const flag = country === 'Canada' ? '🇨🇦' : country === 'Mexico' ? '🇲🇽' : '🇯🇵'
                 return (
-                  <Fragment key={account.id}>
-                    <tr key={`hdr-${account.id}`} style={{ background: 'rgba(99,102,241,0.05)' }}>
+                  <Fragment key={country}>
+                    <tr style={{ background: 'rgba(99,102,241,0.07)' }}>
                       <td colSpan={10} style={{ padding: '8px 10px', color: '#818CF8', fontWeight: 700, fontSize: 12, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                        {account.name} — {account.location} ({account.currency})
+                        {flag} {country}
                       </td>
                     </tr>
                     {positions.map(p => {
+                      const acc = accountById[p.accountId]
                       const currentDisplay = convert(p.currentValue, p.currency)
-                      const costDisplay = convert(p.value, p.currency)
-                      const diffDisplay = currentDisplay - costDisplay
+                      const costDisplay    = convert(p.value, p.currency)
+                      const diffDisplay    = currentDisplay - costDisplay
                       return (
                         <tr key={p.id} style={{ borderBottom: '1px solid #0D0D14' }}>
-                          <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{account.name}</td>
+                          <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{acc?.name ?? '—'}</td>
                           <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 600 }}>{p.ticker}</td>
                           <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{p.category}</td>
                           <td style={{ ...tdStyle, textAlign: 'left', color: '#4B5563' }}>{p.subCategory ?? '—'}</td>
@@ -268,14 +274,14 @@ export default function Portfolio() {
                         </tr>
                       )
                     })}
-                    <tr key={`sub-${account.id}`} style={{ background: 'rgba(0,0,0,0.2)' }}>
+                    <tr style={{ background: 'rgba(0,0,0,0.2)' }}>
                       <td colSpan={6} style={{ padding: '8px 10px', color: '#94A3B8', fontSize: 12, textAlign: 'right', fontStyle: 'italic' }}>
-                        Subtotal {account.name}
+                        Subtotal {country}
                       </td>
-                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(accCost)}</td>
-                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(accTotal)}</td>
-                      <td style={{ ...tdStyle, color: (accTotal - accCost) >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
-                        {(accTotal - accCost) >= 0 ? '+' : ''}{formatDisplay(accTotal - accCost)}
+                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(countryCost)}</td>
+                      <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 600 }}>{formatDisplay(countryTotal)}</td>
+                      <td style={{ ...tdStyle, color: countryDiff >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
+                        {countryDiff >= 0 ? '+' : ''}{formatDisplay(countryDiff)}
                       </td>
                       <td style={tdStyle} />
                     </tr>
