@@ -103,6 +103,7 @@ export default function Dashboard() {
                   outerRadius="80%"
                   paddingAngle={3}
                   dataKey="value"
+                  isAnimationActive={false}
                 >
                   {pieData.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
@@ -134,8 +135,8 @@ export default function Dashboard() {
                   formatter={(val) => [`${Number(val).toFixed(1)}%`, '']}
                 />
                 <Legend formatter={(value) => <span style={{ color: '#94A3B8', fontSize: 12 }}>{value}</span>} />
-                <Bar dataKey="target" name="Target %" fill="#6366F1" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="current" name="Current %" fill="#10B981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="target" name="Target %" fill="#6366F1" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+                <Bar dataKey="current" name="Current %" fill="#10B981" radius={[4, 4, 0, 0]} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -115,6 +115,7 @@ export function PlannedPortfolio() {
                   dataKey="value"
                   labelLine={false}
                   label={renderCustomLabel}
+                  isAnimationActive={false}
                 >
                   {locationPieData.map(entry => (
                     <Cell key={entry.name} fill={LOCATION_COLORS[entry.name] ?? '#94A3B8'} />
@@ -151,6 +152,7 @@ export function PlannedPortfolio() {
                   dataKey="value"
                   labelLine={false}
                   label={renderCustomLabel}
+                  isAnimationActive={false}
                 >
                   {groupPieData.map(entry => (
                     <Cell key={entry.name} fill={GROUP_COLOR[entry.name] ?? '#94A3B8'} />
