@@ -12,11 +12,11 @@ export function Settings() {
   const [showToken, setShowToken] = useState(false)
 
   return (
-    <div className="flex w-full max-w-[720px] flex-col gap-4 md:gap-5">
+    <div className="mx-auto flex w-full max-w-[720px] flex-col gap-3 md:mx-0 md:gap-5">
       {/* Accounts */}
       <Card>
         <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Accounts</div>
-        <div className="table-scroll -mx-3 sm:mx-0">
+        <div className="table-scroll -mx-4 md:mx-0">
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr>
@@ -30,9 +30,9 @@ export function Settings() {
           <tbody>
             {mockAccounts.map(a => (
               <tr key={a.id} style={{ borderBottom: '1px solid #0D0D14' }}>
-                <td style={{ padding: '9px 10px', color: '#F1F5F9', fontWeight: 600 }}>{a.name}</td>
-                <td style={{ padding: '9px 10px', color: '#94A3B8' }}>{a.location}</td>
-                <td style={{ padding: '9px 10px', color: '#94A3B8' }}>{a.currency}</td>
+                <td style={{ padding: '12px 10px', color: '#F1F5F9', fontWeight: 600 }}>{a.name}</td>
+                <td style={{ padding: '12px 10px', color: '#94A3B8' }}>{a.location}</td>
+                <td style={{ padding: '12px 10px', color: '#94A3B8' }}>{a.currency}</td>
               </tr>
             ))}
           </tbody>
@@ -74,7 +74,7 @@ export function Settings() {
             type={showToken ? 'text' : 'password'}
             value={token}
             readOnly
-            className="w-full min-w-0 sm:w-auto sm:flex-1"
+            className="min-h-11 w-full min-w-0 sm:w-auto sm:flex-1 md:min-h-10"
             style={{
               background: '#0D0D14', border: '1px solid #1E1E2E', color: '#F1F5F9',
               borderRadius: 8, padding: '8px 14px', fontSize: 14, fontFamily: 'monospace',
@@ -82,7 +82,7 @@ export function Settings() {
           />
           <button
             onClick={() => setShowToken(s => !s)}
-            className="flex-1 sm:flex-none"
+            className="min-h-11 flex-1 sm:flex-none md:min-h-10"
             style={{
               background: '#1E1E2E', border: 'none', color: '#94A3B8',
               padding: '8px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
@@ -91,7 +91,7 @@ export function Settings() {
             {showToken ? 'Hide' : 'Show'}
           </button>
           <button
-            className="flex-1 sm:flex-none"
+            className="min-h-11 flex-1 sm:flex-none md:min-h-10"
             onClick={() => setToken(Math.random().toString(36).slice(2, 14).toUpperCase())}
             style={{
               background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
@@ -111,9 +111,9 @@ export function Settings() {
             <button
               key={c}
               onClick={() => setDisplayCurrency(c)}
-              className="flex-1 sm:flex-none sm:px-6"
+              className="min-h-11 flex-1 sm:flex-none sm:px-6 md:min-h-10"
               style={{
-                paddingTop: 8, paddingBottom: 8, borderRadius: 8, border: 'none', cursor: 'pointer',
+                borderRadius: 8, border: 'none', cursor: 'pointer',
                 background: displayCurrency === c ? '#6366F1' : '#1E1E2E',
                 color: displayCurrency === c ? '#fff' : '#94A3B8',
                 fontWeight: displayCurrency === c ? 700 : 400,

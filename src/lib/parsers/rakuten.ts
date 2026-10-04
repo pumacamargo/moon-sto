@@ -64,8 +64,19 @@ export function parseRakuten(text: string, capturedAt: Date): RakutenCapture | n
   // Summary totals
   const totalAssets     = extractYenAfter(lines, 'Total Assets')
   const totalHeldValue  = extractYenAfter(lines, 'Total value of held assets')
-  const totalDeposits   = extractYenAfter(lines, 'Total deposits')
-  const cashJpy         = extractYenAfter(lines, 'Japanese Yen')
+  // "Total deposits" label line has no value; the yen amount is on the next line
+  // ("→ Account details  → Deposit and withdrawal history\t850,450 yen").
+  // NOTE: "Japanese Yen" is the dividends/interest column, NOT cash.
+  const totalDeposits   = (() => {
+    const idx = lines.findIndex(l => l.startsWith('Total deposits'))
+    if (idx < 0) return 0
+    for (const l of lines.slice(idx, idx + 2)) {
+      const m = l.match(/([\d,]+)\s*yen/)
+      if (m) return parseYen(m[1])
+    }
+    return 0
+  })()
+  const cashJpy         = totalDeposits
 
   // Exchange rates — lines like "USD\t157.88 yen / USD (..."
   const rateMatch = (currency: string): number => {
@@ -94,7 +105,7 @@ export function parseRakuten(text: string, capturedAt: Date): RakutenCapture | n
   const fullText = lines.join('\n')
 
   // Match each "Domestic stocks\t{ticker}" block
-  const blockRE = /Domestic stocks\t(\d+)\n([^\n]+)\n([^\n]+NISA[^\n]+)\n([\d,.]+) yen\n([+\-]?[\d,.]+) yen\n\n?([\d,]+) yen\n([+\-][\d,]+ yen)/g
+  const blockRE = /Domestic stocks\t(\d+)\n([^\n]+)\n([^\n]*NISA[^\n]*)\n([\d,.]+) yen\n([+\-]?[\d,.]+) yen\n\n?([\d,]+) yen\n([+\-][\d,]+ yen)/g
   let m: RegExpExecArray | null
 
   while ((m = blockRE.exec(fullText)) !== null) {
@@ -116,8 +127,7 @@ export function parseRakuten(text: string, capturedAt: Date): RakutenCapture | n
     const avgCost      = parseYen(avgCostStr)
     const currentPrice = parseFloat(currentPriceStr.replace(/,/g, '')) || 0
     const marketValue  = parseYen(marketValueStr)
-    const unrealizedPnL = parseYen(unrealizedStr.replace(/[+]/g, '')) *
-                          (unrealizedStr.startsWith('-') ? -1 : 1)
+    const unrealizedPnL = parseYen(unrealizedStr)
     const costBasis    = quantity * avgCost
     const pctGain      = costBasis > 0 ? (unrealizedPnL / costBasis) * 100 : 0
 
@@ -153,7 +163,7 @@ export function parseRakuten(text: string, capturedAt: Date): RakutenCapture | n
         const v = lines[j]
         if (/^[\d,]+ yen$/.test(v) && yenCount === 0) { marketValue = parseYen(v); yenCount++ }
         else if (/^[+\-][\d,]+ yen$/.test(v)) {
-          unrealizedPnL = parseYen(v.replace(/[+]/g, '')) * (v.startsWith('-') ? -1 : 1)
+          unrealizedPnL = parseYen(v)  // parseYen already keeps the sign
           break
         }
       }

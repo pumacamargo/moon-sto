@@ -60,16 +60,20 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
+      {/* Mobile: hero total + P&L full-width, small stats side by side. lg: 4-up row */}
       <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <StatCard
           label="Total Portfolio"
           value={formatDisplay(totalDisplay)}
+          highlight
+          className="col-span-2 lg:col-span-1"
         />
         <StatCard
           label="Net P&L"
           value={formatDisplay(totalNetPnlDisplay)}
           sub={totalNetPnl >= 0 ? `+${formatDisplay(totalNetPnlDisplay)}` : formatDisplay(totalNetPnlDisplay)}
           trend={totalNetPnl}
+          className="col-span-2 lg:col-span-1"
         />
         <StatCard
           label="Positions"
@@ -88,7 +92,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Allocation by Group</CardTitle>
           </CardHeader>
-          <div className="h-[240px] sm:h-[260px]">
+          <div className="h-[240px] md:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -120,7 +124,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Target vs Current % by Location</CardTitle>
           </CardHeader>
-          <div className="h-[240px] sm:h-[260px]">
+          <div className="h-[240px] md:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={locationData} margin={{ top: 10, right: 4, left: -24, bottom: 0 }}>
                 <XAxis dataKey="location" tick={{ fill: '#94A3B8', fontSize: 12 }} axisLine={false} tickLine={false} />
@@ -142,7 +146,7 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle>Group Summary</CardTitle>
         </CardHeader>
-        <div className="table-scroll -mx-3 sm:mx-0">
+        <div className="table-scroll -mx-4 md:mx-0">
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>

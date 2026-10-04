@@ -1,34 +1,56 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Briefcase, Target, ArrowLeftRight, TrendingUp } from 'lucide-react'
+import { clsx } from 'clsx'
+import { navItems } from './navItems'
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/portfolio', icon: Briefcase, label: 'Portfolio' },
-  { to: '/planned', icon: Target, label: 'Planned' },
-  { to: '/transfers', icon: ArrowLeftRight, label: 'Transfers' },
-  { to: '/performance', icon: TrendingUp, label: 'Perf' },
-]
-
+/**
+ * Mobile primary navigation. Fixed to the bottom, respects the iPhone home
+ * indicator via safe-area-inset-bottom. Hidden from md: up (sidebar takes over).
+ */
 export function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 flex md:hidden border-t z-50"
-      style={{ background: '#0D0D14', borderColor: '#1E1E2E', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      aria-label="Primary"
+      className="fixed inset-x-0 bottom-0 z-50 border-t backdrop-blur-md md:hidden"
+      style={{
+        background: 'rgba(13,13,20,0.92)',
+        borderColor: '#1E1E2E',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
     >
-      {navItems.map(({ to, icon: Icon, label }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={to === '/'}
-          className="flex min-w-0 flex-col items-center justify-center flex-1 py-2 gap-0.5 text-[11px] leading-tight font-medium transition-colors"
-          style={({ isActive }) => ({
-            color: isActive ? '#818CF8' : '#4B5563',
-          })}
-        >
-          <Icon size={20} />
-          <span className="max-w-full truncate">{label}</span>
-        </NavLink>
-      ))}
+      <ul className="flex h-16 items-stretch">
+        {navItems.filter((n) => n.inBottomNav).map(({ to, icon: Icon, short }) => (
+          <li key={to} className="flex min-w-0 flex-1">
+            <NavLink
+              to={to}
+              end={to === '/'}
+              className={({ isActive }) =>
+                clsx(
+                  'relative flex min-h-11 w-full min-w-0 flex-col items-center justify-center gap-1 text-[11px] font-medium leading-none transition-colors active:bg-white/5',
+                  isActive ? 'text-indigo-400' : 'text-slate-500'
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {/* Active indicator pill */}
+                  <span
+                    aria-hidden
+                    className={clsx(
+                      'absolute top-0 h-0.5 w-8 rounded-full transition-opacity',
+                      isActive ? 'opacity-100' : 'opacity-0'
+                    )}
+                    style={{ background: '#6366F1' }}
+                  />
+                  <Icon size={22} strokeWidth={isActive ? 2.25 : 1.75} />
+                  <span className="max-w-full truncate px-1">{short}</span>
+                </>
+              )}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
     </nav>
   )
 }

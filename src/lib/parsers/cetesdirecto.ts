@@ -157,9 +157,12 @@ export function parseCetesDirectoCapture(
   text: string,
   capturedAt: Date,
 ): CetesDirectoCapture | null {
-  const type = detectCaptureType(text)
-  if (type === 'bonddia') return parseBonddia(text, capturedAt)
-  if (type === 'cetes')   return parseCetes(text, capturedAt)
-  if (type === 'deposit') return parseDeposit(text, capturedAt)
+  // Normalize non-breaking spaces (\xa0) to regular spaces — CETESdirecto
+  // renders "Precio\xa0de\xa0mercado:" and "Precio\xa0de\xa0adquisición:" with \xa0.
+  const t = text.replace(/\xa0/g, ' ')
+  const type = detectCaptureType(t)
+  if (type === 'bonddia') return parseBonddia(t, capturedAt)
+  if (type === 'cetes')   return parseCetes(t, capturedAt)
+  if (type === 'deposit') return parseDeposit(t, capturedAt)
   return null
 }

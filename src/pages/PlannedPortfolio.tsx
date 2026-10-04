@@ -1,4 +1,5 @@
 import { Fragment, useState } from 'react'
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
 import { mockPlannedGroups, TOTAL_CAD } from '../lib/mockData'
@@ -58,11 +59,120 @@ export function PlannedPortfolio() {
     })
     .filter(s => Math.abs(s.diffVal) > 1)
 
+  const LOCATION_COLORS: Record<string, string> = {
+    Canada: '#818CF8',
+    Mexico: '#34D399',
+    Japan: '#FBBF24',
+  }
+
+  const locationPieData = (['Canada', 'Mexico', 'Japan'] as const)
+    .map(loc => ({
+      name: loc,
+      value: allCategories.filter(c => c.location === loc).reduce((s, c) => s + c.targetPct, 0),
+    }))
+    .filter(d => d.value > 0)
+
+  const groupPieData = mockPlannedGroups.map(g => ({
+    name: g.name,
+    value: g.categories.reduce((s, c) => s + c.targetPct, 0),
+  }))
+
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: {
+    cx?: number; cy?: number; midAngle?: number; innerRadius?: number; outerRadius?: number; percent?: number
+  }) => {
+    if (!percent || percent < 0.05 || cx == null || cy == null || midAngle == null || innerRadius == null || outerRadius == null) return null
+    const RADIAN = Math.PI / 180
+    const r = innerRadius + (outerRadius - innerRadius) * 0.5
+    const x = cx + r * Math.cos(-midAngle * RADIAN)
+    const y = cy + r * Math.sin(-midAngle * RADIAN)
+    return (
+      <text x={x} y={y} fill="#F1F5F9" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4 md:gap-5">
+
+      {/* Pie Charts */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+        {/* By Country */}
+        <Card style={{ padding: 0 }}>
+          <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
+            <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Target — by Country
+            </span>
+          </div>
+          <div style={{ padding: '16px 8px 8px' }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={locationPieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  dataKey="value"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                >
+                  {locationPieData.map(entry => (
+                    <Cell key={entry.name} fill={LOCATION_COLORS[entry.name] ?? '#94A3B8'} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(v) => [`${v}%`, 'Target']}
+                  contentStyle={{ background: '#1E1E2E', border: '1px solid #2D2D40', borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: '#F1F5F9' }}
+                />
+                <Legend
+                  formatter={(value) => <span style={{ color: '#94A3B8', fontSize: 12 }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* By Category */}
+        <Card style={{ padding: 0 }}>
+          <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
+            <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Target — by Group
+            </span>
+          </div>
+          <div style={{ padding: '16px 8px 8px' }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={groupPieData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  dataKey="value"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                >
+                  {groupPieData.map(entry => (
+                    <Cell key={entry.name} fill={GROUP_COLOR[entry.name] ?? '#94A3B8'} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(v) => [`${v}%`, 'Target']}
+                  contentStyle={{ background: '#1E1E2E', border: '1px solid #2D2D40', borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: '#F1F5F9' }}
+                />
+                <Legend
+                  formatter={(value) => <span style={{ color: '#94A3B8', fontSize: 12 }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+
       {/* Table 1: by Group + Category */}
       <Card className="overflow-hidden" style={{ padding: 0 }}>
-        <div className="px-3 py-3 sm:px-4" style={{ borderBottom: '1px solid #1E1E2E' }}>
+        <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
           <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Planned Allocation — by Group
           </span>
@@ -166,7 +276,7 @@ export function PlannedPortfolio() {
 
       {/* Table 2: by Location */}
       <Card className="overflow-hidden" style={{ padding: 0 }}>
-        <div className="px-3 py-3 sm:px-4" style={{ borderBottom: '1px solid #1E1E2E' }}>
+        <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
           <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Allocation by Location
           </span>
@@ -227,12 +337,12 @@ export function PlannedPortfolio() {
       <div>
         <button
           onClick={() => setShowSuggestions(s => !s)}
-          className="w-full sm:w-auto"
+          aria-expanded={showSuggestions}
+          className="min-h-11 w-full px-5 sm:w-auto md:min-h-10"
           style={{
             background: showSuggestions ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)',
             border: '1px solid rgba(99,102,241,0.4)',
             color: '#818CF8',
-            padding: '8px 20px',
             borderRadius: 8,
             cursor: 'pointer',
             fontSize: 13,
@@ -256,10 +366,9 @@ export function PlannedPortfolio() {
                     <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: 13 }}>{s.category}</span>
                     <span style={{ color: '#94A3B8', fontSize: 12, marginLeft: 8 }}>({s.location})</span>
                   </div>
-                  <span className="shrink-0 tabular-nums" style={{
+                  <span className="shrink-0 text-base tabular-nums md:text-sm" style={{
                     color: s.diffVal > 0 ? '#10B981' : '#EF4444',
                     fontWeight: 700,
-                    fontSize: 13,
                   }}>
                     {s.diffVal > 0
                       ? `BUY ${formatDisplay(convert(s.diffVal, 'CAD'))} more`

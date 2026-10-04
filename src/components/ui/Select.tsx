@@ -9,7 +9,7 @@ export function Select({ options, className, ...props }: SelectProps) {
   return (
     <select
       className={clsx(
-        'rounded-lg border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50',
+        'min-h-11 rounded-lg border px-3 text-sm md:min-h-9 focus:outline-none focus:ring-2 focus:ring-indigo-500/50',
         className
       )}
       style={{

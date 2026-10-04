@@ -31,18 +31,18 @@ export function Transfers() {
 
   return (
     <div className="flex flex-col gap-3 md:gap-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
-        <div className="min-w-0 p-3 sm:p-4" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4">
+        <div className="col-span-2 min-w-0 p-4 sm:col-span-1 md:p-5" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
           <div style={{ color: '#94A3B8', fontSize: 11, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Sent</div>
-          <div style={{ color: '#F1F5F9', fontWeight: 700 }} className="text-lg sm:text-xl tabular-nums break-words">{formatCurrency(totalSent, 'CAD')}</div>
+          <div style={{ color: '#F1F5F9', fontWeight: 700 }} className="text-3xl tabular-nums break-words sm:text-xl md:text-2xl">{formatCurrency(totalSent, 'CAD')}</div>
         </div>
-        <div className="min-w-0 p-3 sm:p-4" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
+        <div className="min-w-0 p-4 md:p-5" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
           <div style={{ color: '#94A3B8', fontSize: 11, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Arrived (CAD)</div>
-          <div style={{ color: '#10B981', fontWeight: 700 }} className="text-lg sm:text-xl tabular-nums break-words">{formatCurrency(totalArriveCAD, 'CAD')}</div>
+          <div style={{ color: '#10B981', fontWeight: 700 }} className="text-xl tabular-nums break-words md:text-2xl">{formatCurrency(totalArriveCAD, 'CAD')}</div>
         </div>
-        <div className="min-w-0 p-3 sm:p-4" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
+        <div className="min-w-0 p-4 md:p-5" style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 12 }}>
           <div style={{ color: '#94A3B8', fontSize: 11, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total Commission</div>
-          <div style={{ color: '#EF4444', fontWeight: 700 }} className="text-lg sm:text-xl tabular-nums break-words">{formatCurrency(totalCommission, 'CAD')}</div>
+          <div style={{ color: '#EF4444', fontWeight: 700 }} className="text-xl tabular-nums break-words md:text-2xl">{formatCurrency(totalCommission, 'CAD')}</div>
         </div>
       </div>
 

@@ -18,6 +18,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Anchor/focus scrolling should land below the sticky mobile header */
+  scroll-padding-top: calc(env(safe-area-inset-top) + 56px);
 }
 
 body {
@@ -26,6 +28,24 @@ body {
   color: #F1F5F9;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Remove the 300ms tap delay / double-tap zoom on interactive elements */
+a,
+button,
+select,
+input,
+label {
+  touch-action: manipulation;
+}
+
+/* Financial figures: aligned digits everywhere */
+.tabular-nums,
+td,
+th {
+  font-variant-numeric: tabular-nums;
 }
 
 #root {
@@ -44,6 +64,25 @@ body {
 .table-scroll th,
 .table-scroll td {
   white-space: nowrap;
+}
+
+/* Mobile horizontal-scroll strips (e.g. chart carousels). In a layer so md: utilities can override. */
+@layer components {
+  .scroll-strip {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 0.75rem;
+    scrollbar-width: none;
+  }
+
+  .scroll-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-strip > * {
+    scroll-snap-align: start;
+  }
 }
 
 @media (max-width: 767px) {
