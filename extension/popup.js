@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         text:         { stringValue: result.text },
         capturedAt:   { timestampValue: new Date().toISOString() },
         status:       { stringValue: 'pending_analysis' },
-        sizeKB:       { integerValue: sizeKB },
+        sizeKB:       { integerValue: String(sizeKB) },
       })
 
       showStatus(`✓ Captura guardada (${sizeKB} KB)`, 'success')

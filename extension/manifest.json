@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Moonsto Capture",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Captura páginas de tus cuentas de inversión y las guarda en Firestore para construir el scraper",
   "permissions": [
     "activeTab",
