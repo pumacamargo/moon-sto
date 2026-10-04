@@ -1,8 +1,10 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useMemo } from 'react'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
 import { mockPositions, mockAccounts } from '../lib/mockData'
 import { formatCurrency, formatPct } from '../lib/currency'
+import { useCetesDirecto } from '../hooks/useCetesDirecto'
+import type { Position } from '../types'
 
 const thStyle: React.CSSProperties = {
   textAlign: 'right',
@@ -21,14 +23,69 @@ const tdStyle: React.CSSProperties = {
   borderBottom: '1px solid #0D0D14',
 }
 
+// IDs of mock positions that get replaced by real CETESdirecto data
+const CETES_MOCK_IDS = new Set(['11', '14'])
+
 export default function Portfolio() {
   const { convert, formatDisplay, displayCurrency } = useCurrency()
   const [filterAccount, setFilterAccount] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
+  const cetesData = useCetesDirecto()
 
-  const categories = Array.from(new Set(mockPositions.map(p => p.category))).sort()
+  // Build real positions from CETESdirecto captures
+  const cetesPositions = useMemo<Position[]>(() => {
+    const positions: Position[] = []
+    const now = cetesData.bonddia?.capturedAt ?? cetesData.cetes?.capturedAt ?? new Date()
 
-  const filtered = mockPositions.filter(p => {
+    if (cetesData.bonddia) {
+      const b = cetesData.bonddia
+      positions.push({
+        id: 'cetes-bonddia',
+        accountId: '4',
+        ticker: 'BONDDIA',
+        name: 'Bonddia',
+        category: 'Bonddia',
+        value: b.montoInvertido,
+        currentValue: b.montoValuado,
+        currency: 'MXN',
+        pctGain: b.montoInvertido > 0 ? ((b.montoValuado - b.montoInvertido) / b.montoInvertido) * 100 : 0,
+        lastUpdated: now,
+      })
+    }
+
+    if (cetesData.cetes) {
+      cetesData.cetes.posiciones.forEach(pos => {
+        positions.push({
+          id: `cetes-${pos.serie}`,
+          accountId: '6',
+          ticker: 'CETES',
+          name: `CETES ${pos.serie}`,
+          category: 'Cetes',
+          subCategory: `${pos.plazo} · ${pos.tasaCompra}%`,
+          value: pos.montoInvertido,
+          currentValue: pos.montoValuado,
+          currency: 'MXN',
+          pctGain: pos.montoInvertido > 0 ? ((pos.montoValuado - pos.montoInvertido) / pos.montoInvertido) * 100 : 0,
+          lastUpdated: now,
+        })
+      })
+    }
+
+    return positions
+  }, [cetesData])
+
+  // Merge: remove mock CETES/BONDDIA entries, inject real ones
+  const allPositions = useMemo<Position[]>(() => {
+    const hasCetesReal = cetesPositions.length > 0
+    const base = hasCetesReal
+      ? mockPositions.filter(p => !CETES_MOCK_IDS.has(p.id))
+      : mockPositions
+    return [...base, ...cetesPositions]
+  }, [cetesPositions])
+
+  const categories = Array.from(new Set(allPositions.map(p => p.category))).sort()
+
+  const filtered = allPositions.filter(p => {
     if (filterAccount !== 'all' && p.accountId !== filterAccount) return false
     if (filterCategory !== 'all' && p.category !== filterCategory) return false
     return true
@@ -43,8 +100,31 @@ export default function Portfolio() {
   const grandTotalCost = filtered.reduce((s, p) => s + p.value, 0)
   const grandTotalCostDisplay = filtered.reduce((s, p) => s + convert(p.value, p.currency), 0)
 
+  const showStaleWarning = !cetesData.loading && cetesData.isStale
+
   return (
     <div className="flex flex-col gap-3 md:gap-4">
+      {showStaleWarning && (
+        <div style={{
+          background: 'rgba(245,158,11,0.08)',
+          border: '1px solid rgba(245,158,11,0.25)',
+          borderRadius: 8,
+          padding: '10px 14px',
+          fontSize: 13,
+          color: '#F59E0B',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <span>⚠</span>
+          <span>
+            CETESdirecto{cetesData.lastUpdated
+              ? ` — última captura: ${cetesData.lastUpdated.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`
+              : ' — sin capturas'}
+            . Abre la extensión en CETESdirecto y captura BONDDIA y CETES para actualizar.
+          </span>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
         <select
           value={filterAccount}
