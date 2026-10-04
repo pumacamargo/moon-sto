@@ -139,7 +139,7 @@ export default function Portfolio() {
 
   const accountById = Object.fromEntries(mockAccounts.map(a => [a.id, a]))
 
-  const COUNTRY_ORDER = ['Canada', 'Mexico', 'Japan'] as const
+  const COUNTRY_ORDER = ['Japan', 'Mexico', 'Canada'] as const
   const byCountry = COUNTRY_ORDER.map(country => ({
     country,
     positions: filtered.filter(p => accountById[p.accountId]?.location === country),
@@ -205,6 +205,13 @@ export default function Portfolio() {
       )}
       {/* Totals summary */}
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${countryTotals.length + 1}, 1fr)`, gap: 8 }}>
+        <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ fontSize: 11, color: '#6366F1', marginBottom: 4 }}>Total</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#F1F5F9' }}>{formatDisplay(grandTotalDisplay)}</div>
+          <div style={{ fontSize: 11, color: grandTotalDiff >= 0 ? '#10B981' : '#EF4444', marginTop: 2 }}>
+            {grandTotalDiff >= 0 ? '+' : ''}{formatDisplay(grandTotalDiff)}
+          </div>
+        </div>
         {countryTotals.map(({ country, total, diff }) => {
           const flag = country === 'Canada' ? '🇨🇦' : country === 'Mexico' ? '🇲🇽' : '🇯🇵'
           return (
@@ -217,13 +224,6 @@ export default function Portfolio() {
             </div>
           )
         })}
-        <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 8, padding: '10px 12px' }}>
-          <div style={{ fontSize: 11, color: '#6366F1', marginBottom: 4 }}>Total</div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#F1F5F9' }}>{formatDisplay(grandTotalDisplay)}</div>
-          <div style={{ fontSize: 11, color: grandTotalDiff >= 0 ? '#10B981' : '#EF4444', marginTop: 2 }}>
-            {grandTotalDiff >= 0 ? '+' : ''}{formatDisplay(grandTotalDiff)}
-          </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
