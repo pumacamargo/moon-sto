@@ -131,6 +131,7 @@ export default function Portfolio() {
   const categories = Array.from(new Set(allPositions.map(p => p.category))).sort()
 
   const filtered = allPositions.filter(p => {
+    if (p.currentValue === 0 && p.value === 0) return false
     if (filterAccount !== 'all' && p.accountId !== filterAccount) return false
     if (filterCategory !== 'all' && p.category !== filterCategory) return false
     return true
@@ -144,9 +145,16 @@ export default function Portfolio() {
     positions: filtered.filter(p => accountById[p.accountId]?.location === country),
   })).filter(g => g.positions.length > 0)
 
-  const grandTotalDisplay = filtered.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
-  const grandTotalCost = filtered.reduce((s, p) => s + p.value, 0)
+  const grandTotalDisplay     = filtered.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
   const grandTotalCostDisplay = filtered.reduce((s, p) => s + convert(p.value, p.currency), 0)
+  const grandTotalDiff        = grandTotalDisplay - grandTotalCostDisplay
+
+  const countryTotals = COUNTRY_ORDER.map(country => {
+    const positions = filtered.filter(p => accountById[p.accountId]?.location === country)
+    const total = positions.reduce((s, p) => s + convert(p.currentValue, p.currency), 0)
+    const cost  = positions.reduce((s, p) => s + convert(p.value, p.currency), 0)
+    return { country, total, diff: total - cost }
+  }).filter(c => c.total > 0)
 
   const showStaleWarning = (!cetesData.loading && cetesData.isStale) ||
                            (!gbmData.loading && gbmData.isStale) ||
@@ -195,6 +203,29 @@ export default function Portfolio() {
           </span>
         </div>
       )}
+      {/* Totals summary */}
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${countryTotals.length + 1}, 1fr)`, gap: 8 }}>
+        {countryTotals.map(({ country, total, diff }) => {
+          const flag = country === 'Canada' ? '🇨🇦' : country === 'Mexico' ? '🇲🇽' : '🇯🇵'
+          return (
+            <div key={country} style={{ background: '#12121A', border: '1px solid #1E1E2E', borderRadius: 8, padding: '10px 12px' }}>
+              <div style={{ fontSize: 11, color: '#4B5563', marginBottom: 4 }}>{flag} {country}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#F1F5F9' }}>{formatDisplay(total)}</div>
+              <div style={{ fontSize: 11, color: diff >= 0 ? '#10B981' : '#EF4444', marginTop: 2 }}>
+                {diff >= 0 ? '+' : ''}{formatDisplay(diff)}
+              </div>
+            </div>
+          )
+        })}
+        <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 8, padding: '10px 12px' }}>
+          <div style={{ fontSize: 11, color: '#6366F1', marginBottom: 4 }}>Total</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#F1F5F9' }}>{formatDisplay(grandTotalDisplay)}</div>
+          <div style={{ fontSize: 11, color: grandTotalDiff >= 0 ? '#10B981' : '#EF4444', marginTop: 2 }}>
+            {grandTotalDiff >= 0 ? '+' : ''}{formatDisplay(grandTotalDiff)}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
         <select
           value={filterAccount}
@@ -288,19 +319,6 @@ export default function Portfolio() {
                   </Fragment>
                 )
               })}
-              <tr style={{ borderTop: '2px solid #1E1E2E', background: '#0D0D14' }}>
-                <td colSpan={4} style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
-                <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>
-                  {formatDisplay(grandTotalCost)}
-                </td>
-                <td style={{ ...tdStyle, color: '#94A3B8', fontWeight: 600 }}>—</td>
-                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>{formatDisplay(grandTotalCostDisplay)}</td>
-                <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>{formatDisplay(grandTotalDisplay)}</td>
-                <td style={{ ...tdStyle, color: (grandTotalDisplay - grandTotalCostDisplay) >= 0 ? '#10B981' : '#EF4444', fontWeight: 700 }}>
-                  {(grandTotalDisplay - grandTotalCostDisplay) >= 0 ? '+' : ''}{formatDisplay(grandTotalDisplay - grandTotalCostDisplay)}
-                </td>
-                <td style={tdStyle} />
-              </tr>
             </tbody>
           </table>
         </div>
