@@ -50,15 +50,9 @@ export const mockPlannedGroups: PlannedGroup[] = [
     ]
   },
   {
-    id: '2', name: 'CETES', targetPct: 15,
+    id: '2', name: 'CETES', targetPct: 20,
     categories: [
-      { id: '4', groupId: '2', location: 'Mexico', category: 'Cetes', targetPct: 15, currentPct: 10.51, targetValue: 32592.26, currentValue: 22829.94, netPnl: 239.28 },
-    ]
-  },
-  {
-    id: '3', name: 'SOFIPOs', targetPct: 5,
-    categories: [
-      { id: '5', groupId: '3', location: 'Mexico', category: 'SOFIPOs', targetPct: 5, currentPct: 0, targetValue: 10864.09, currentValue: 0, netPnl: 0 },
+      { id: '4', groupId: '2', location: 'Mexico', category: 'Cetes', targetPct: 20, currentPct: 10.51, targetValue: 43456.34, currentValue: 22829.94, netPnl: 239.28 },
     ]
   },
   {
@@ -69,18 +63,24 @@ export const mockPlannedGroups: PlannedGroup[] = [
     ]
   },
   {
-    id: '5', name: 'Gold / Commodities', targetPct: 5,
+    id: '6', name: 'Cash', targetPct: 10,
     categories: [
-      { id: '8', groupId: '5', location: 'Canada', category: 'Metals & Commodities', targetPct: 5, currentPct: 3.62, targetValue: 10864.09, currentValue: 7874.72, netPnl: -1499.51 },
+      { id: '9', groupId: '6', location: 'Mexico', category: 'Bonddia', targetPct: 7, currentPct: 11.82, targetValue: 15209.72, currentValue: 25688.81, netPnl: 517.52 },
+      { id: '10', groupId: '6', location: 'Canada', category: 'CashC', targetPct: 3, currentPct: 59.53, targetValue: 6518.45, currentValue: 129345.69, netPnl: 0 },
+      { id: '11', groupId: '6', location: 'Japan', category: 'CashJ', targetPct: 0, currentPct: 0, targetValue: 0, currentValue: 0, netPnl: 0 },
+      { id: '12', groupId: '6', location: 'Mexico', category: 'CashM', targetPct: 0, currentPct: 0, targetValue: 0, currentValue: 0, netPnl: 0 },
     ]
   },
   {
-    id: '6', name: 'Cash', targetPct: 15,
+    id: '3', name: 'SOFIPOs', targetPct: 5,
     categories: [
-      { id: '9', groupId: '6', location: 'Mexico', category: 'Bonddia', targetPct: 10, currentPct: 11.82, targetValue: 21728.17, currentValue: 25688.81, netPnl: 517.52 },
-      { id: '10', groupId: '6', location: 'Canada', category: 'CashC', targetPct: 5, currentPct: 59.53, targetValue: 10864.09, currentValue: 129345.69, netPnl: 0 },
-      { id: '11', groupId: '6', location: 'Japan', category: 'CashJ', targetPct: 0, currentPct: 0, targetValue: 0, currentValue: 0, netPnl: 0 },
-      { id: '12', groupId: '6', location: 'Mexico', category: 'CashM', targetPct: 0, currentPct: 0, targetValue: 0, currentValue: 0, netPnl: 0 },
+      { id: '5', groupId: '3', location: 'Mexico', category: 'SOFIPOs', targetPct: 5, currentPct: 0, targetValue: 10864.09, currentValue: 0, netPnl: 0 },
+    ]
+  },
+  {
+    id: '5', name: 'Gold / Commodities', targetPct: 5,
+    categories: [
+      { id: '8', groupId: '5', location: 'Canada', category: 'Metals & Commodities', targetPct: 5, currentPct: 3.62, targetValue: 10864.09, currentValue: 7874.72, netPnl: -1499.51 },
     ]
   },
 ]
