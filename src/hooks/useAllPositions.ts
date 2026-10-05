@@ -53,7 +53,7 @@ export function useAllPositions(): AllPositionsResult {
       const costBasis = b.montoValuado - b.plusvalia
       positions.push({
         id: 'cetes-bonddia', accountId: '4',
-        ticker: 'BONDDIA', name: 'Bonddia', category: 'Bonddia',
+        ticker: 'BONDDIA', name: 'Bonddia', category: 'Cetes',
         value: costBasis, currentValue: b.montoValuado, currency: 'MXN',
         pctGain: costBasis > 0 ? (b.plusvalia / costBasis) * 100 : 0,
         lastUpdated: now,

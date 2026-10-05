@@ -31,7 +31,7 @@ export const mockPositions: Position[] = [
   { id: '8', accountId: '1', ticker: 'UEC', category: 'Metals & Commodities', subCategory: 'NA', value: 634.74, currentValue: 626.71, currency: 'CAD', pctGain: -1.28, lastUpdated: new Date() },
   { id: '9', accountId: '2', ticker: 'CASH', category: 'CashC', subCategory: 'NA', value: 0, currentValue: 0, currency: 'CAD', pctGain: 0, lastUpdated: new Date() },
   { id: '10', accountId: '3', ticker: 'CASH', category: 'CashC', subCategory: 'NA', value: 31248.00, currentValue: 31248.00, currency: 'CAD', pctGain: 0, lastUpdated: new Date() },
-  { id: '11', accountId: '4', ticker: 'BONDDIA', category: 'Bonddia', subCategory: 'NA', value: 315914.79, currentValue: 322279.08, currency: 'MXN', pctGain: 1.97, lastUpdated: new Date() },
+  { id: '11', accountId: '4', ticker: 'BONDDIA', category: 'Cetes', subCategory: 'NA', value: 315914.79, currentValue: 322279.08, currency: 'MXN', pctGain: 1.97, lastUpdated: new Date() },
   { id: '12', accountId: '5', ticker: 'FMTY14', category: 'REITs / Infrastructure', subCategory: 'NA', value: 122314.38, currentValue: 127510.48, currency: 'MXN', pctGain: 4.08, lastUpdated: new Date() },
   { id: '13', accountId: '5', ticker: 'DANHOS13', category: 'REITs / Infrastructure', subCategory: 'NA', value: 116710.71, currentValue: 124415.76, currency: 'MXN', pctGain: 6.19, lastUpdated: new Date() },
   { id: '14', accountId: '6', ticker: 'CETES', category: 'Cetes', subCategory: 'NA', value: 280757.09, currentValue: 283699.75, currency: 'MXN', pctGain: 1.04, lastUpdated: new Date() },
