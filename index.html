@@ -29,6 +29,15 @@
     </script>
   </head>
   <body>
+    <div id="ai-hint" style="font-family:system-ui,sans-serif;background:#0A0A0F;color:#94A3B8;padding:16px 20px;font-size:13px;line-height:1.6;border-bottom:1px solid #1E1E2E">
+      <strong style="color:#F1F5F9;font-size:15px">Moonsto</strong> — Arturo's personal investment portfolio tracker.<br>
+      Multi-currency (CAD / MXN / JPY) across 7 accounts: RRSP, TFSA, Cash Canada (TD Bank), Cash Mexico, GBM, CETES (CETESdirecto), NISA (Rakuten Japan).<br>
+      Total portfolio: ~$217,281 CAD · Groups: Productive 40%, Liquidity 30%, Protection 30%.<br><br>
+      <strong style="color:#6366F1">👉 AI-readable full snapshot (all positions, no JavaScript required):</strong>
+      <a href="https://moon-sto.web.app/snapshot.html" style="color:#818CF8;text-decoration:underline">https://moon-sto.web.app/snapshot.html</a><br>
+      <span style="color:#475569;font-size:11px">This banner is only visible without JavaScript. The snapshot page has all real-time position data.</span>
+    </div>
+    <script>document.getElementById('ai-hint').style.display='none'</script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <noscript>
