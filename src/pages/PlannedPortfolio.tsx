@@ -140,41 +140,39 @@ export function PlannedPortfolio() {
           </div>
         </Card>
 
-        {/* By Category */}
+        {/* By Group — table */}
         <Card style={{ padding: 0 }}>
           <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
             <span style={{ color: '#94A3B8', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Target — by Group
             </span>
           </div>
-          <div style={{ padding: '16px 8px 8px' }}>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={groupPieData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="value"
-                  labelLine={false}
-                  label={renderCustomLabel}
-                  isAnimationActive={false}
-                >
-                  {groupPieData.map(entry => (
-                    <Cell key={entry.name} fill={GROUP_COLOR[entry.name] ?? '#94A3B8'} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(v) => [`${v}%`, 'Target']}
-                  contentStyle={{ background: '#1E1E2E', border: '1px solid #2D2D40', borderRadius: 8, fontSize: 12 }}
-                  labelStyle={{ color: '#F1F5F9' }}
-                />
-                <Legend
-                  formatter={(value) => <span style={{ color: '#94A3B8', fontSize: 12 }}>{value}</span>}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#0D0D14' }}>
+                <th style={{ ...thStyle, textAlign: 'left' }}>Group</th>
+                <th style={thStyle}>Target %</th>
+                <th style={thStyle}>Target Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groupPieData.map(g => (
+                <tr key={g.name} style={{ borderBottom: '1px solid #0D0D14', background: GROUP_BG[g.name] }}>
+                  <td style={{ ...tdStyle, textAlign: 'left' }}>
+                    <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: GROUP_COLOR[g.name] ?? '#94A3B8', marginRight: 8 }} />
+                    <span style={{ color: GROUP_COLOR[g.name] ?? '#F1F5F9', fontWeight: 600 }}>{g.name}</span>
+                  </td>
+                  <td style={{ ...tdStyle, fontWeight: 600 }}>{g.value}%</td>
+                  <td style={{ ...tdStyle, color: '#94A3B8' }}>{formatDisplay(convert(TOTAL_CAD * g.value / 100, 'CAD'))}</td>
+                </tr>
+              ))}
+              <tr style={{ borderTop: '2px solid #1E1E2E', background: '#0D0D14' }}>
+                <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
+                <td style={{ ...tdStyle, fontWeight: 700 }}>100%</td>
+                <td style={{ ...tdStyle, fontWeight: 700 }}>{formatDisplay(convert(TOTAL_CAD, 'CAD'))}</td>
+              </tr>
+            </tbody>
+          </table>
         </Card>
       </div>
 
