@@ -71,6 +71,42 @@ El usuario debe hacer 2 capturas por sesión:
 
 ---
 
+## Deploy y snapshot AI-readable
+
+### Comandos
+
+| Comando | Qué hace |
+|---------|----------|
+| `npm run deploy` | **Usar siempre este.** Genera snapshot → build → firebase deploy |
+| `npm run snapshot` | Solo regenera `public/snapshot.html` con datos reales de Firestore |
+| `npm run build` | Solo compila (sin snapshot ni deploy) |
+| `firebase deploy --only hosting` | Solo sube dist/ — **no** regenera el snapshot |
+
+### Qué es el snapshot
+
+`public/snapshot.html` es una página HTML estática sin JavaScript que contiene todas las posiciones del portafolio con datos reales leídos de Firestore. Se genera con `scripts/generate-snapshot.ts` vía la REST API de Firestore (no requiere auth porque `page_captures` es público).
+
+**URL pública:** https://moon-sto.web.app/snapshot.html
+
+Esta página permite que herramientas de AI (ChatGPT, Claude, etc.) lean el portafolio completo sin ejecutar JavaScript. El `index.html` principal también tiene JSON-LD y `<noscript>` con metadata del portafolio.
+
+### Cuándo regenerar el snapshot
+
+- **Siempre que hagas deploy** → usa `npm run deploy` en vez de `firebase deploy`
+- **Después de capturar datos nuevos con la extensión** → corre `npm run deploy`
+- Si el snapshot se desactualiza, los AI verán datos viejos
+
+### Cómo funciona el script
+
+`scripts/generate-snapshot.ts`:
+1. Lee `.env` para obtener API key y project ID de Firestore
+2. Llama a la REST API de Firestore (`/documents/page_captures`)
+3. Corre los mismos parsers que la app (`src/lib/parsers/`)
+4. Construye posiciones con la misma lógica que `useAllPositions`
+5. Escribe `public/snapshot.html` con HTML puro (dark theme, tablas, totales por moneda)
+
+---
+
 ## Lógica de actualización en la webapp
 
 - Si la última captura de un broker tiene **más de 2 semanas**, mostrar aviso pidiendo actualizar
