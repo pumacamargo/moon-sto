@@ -71,49 +71,6 @@ El usuario debe hacer 2 capturas por sesión:
 
 ---
 
-## Deploy y snapshot AI-readable
-
-### Comandos
-
-| Comando | Qué hace |
-|---------|----------|
-| `npm run deploy` | **Usar siempre este.** Genera snapshot → build → firebase deploy |
-| `npm run snapshot` | Solo regenera `public/snapshot.html` con datos reales de Firestore |
-| `npm run build` | Solo compila (sin snapshot ni deploy) |
-| `firebase deploy --only hosting` | Solo sube dist/ — **no** regenera el snapshot |
-
-### Qué es el snapshot y cómo llega a todas las páginas
-
-`public/snapshot.html` es una página HTML estática con todos los datos del portafolio leídos de Firestore. Se genera con `scripts/generate-snapshot.ts`.
-
-**URL directa:** https://moon-sto.web.app/snapshot.html
-
-Además, el contenido del snapshot se **inyecta automáticamente en `index.html`** durante el build mediante un plugin de Vite (`aiSnapshot()` en `vite.config.ts`). Firebase sirve ese `index.html` en TODAS las rutas del SPA (`/`, `/portfolio`, `/dashboard`, etc.), así que cualquier URL del sitio es legible por IAs sin JavaScript.
-
-**Cómo funciona la ocultación visual:**
-- Se agrega la clase `js-loaded` a `<html>` via un script inline en el `<head>` (antes de que React monte)
-- Con JS activo: `#ai-content` se oculta visualmente con `clip-path`/`1px` (estilo `sr-only`) — el texto **sigue en el DOM** para scrapers headless
-- Sin JS: el contenido es completamente visible
-
-**Por qué NO se usa `display:none`:** quita el texto del DOM, así que los scrapers tampoco lo ven. El `clip-path` lo oculta visualmente pero lo mantiene legible.
-
-### Cuándo regenerar el snapshot
-
-- **Siempre que hagas deploy** → usa `npm run deploy` en vez de `firebase deploy`
-- **Después de capturar datos nuevos con la extensión** → corre `npm run deploy`
-- Si el snapshot se desactualiza, los AI verán datos viejos
-
-### Cómo funciona el script
-
-`scripts/generate-snapshot.ts`:
-1. Lee `.env` para obtener API key y project ID de Firestore
-2. Llama a la REST API de Firestore (`/documents/page_captures`)
-3. Corre los mismos parsers que la app (`src/lib/parsers/`)
-4. Construye posiciones con la misma lógica que `useAllPositions`
-5. Escribe `public/snapshot.html` con HTML puro (dark theme, tablas, totales por moneda)
-
----
-
 ## Lógica de actualización en la webapp
 
 - Si la última captura de un broker tiene **más de 2 semanas**, mostrar aviso pidiendo actualizar

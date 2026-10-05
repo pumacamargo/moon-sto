@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "snapshot": "npx tsx scripts/generate-snapshot.ts",
-    "deploy": "npm run snapshot && npm run build && firebase deploy --only hosting",
     "lint": "oxlint",
     "preview": "vite preview"
   },

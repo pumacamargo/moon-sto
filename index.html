@@ -8,39 +8,8 @@
     <meta name="description" content="Moonsto — investment portfolio tracker for multi-currency, multi-broker accounts (CAD/MXN/JPY). Pages: Dashboard, Portfolio, Planned Portfolio, Transfers, Performance, Settings." />
     <meta name="robots" content="noindex,nofollow" />
     <title>moonsto</title>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Dataset",
-      "name": "Moonsto Portfolio",
-      "description": "Arturo's personal investment portfolio tracker. Multi-currency (CAD/MXN/JPY), multi-broker (TD Bank Canada, GBM Mexico, CETESdirecto Mexico, Rakuten Japan).",
-      "url": "https://moon-sto.web.app",
-      "creator": { "@type": "Person", "name": "Arturo", "email": "puma.camargo@gmail.com" },
-      "keywords": ["portfolio", "investments", "CAD", "MXN", "JPY", "RRSP", "TFSA", "CETES", "GBM", "Rakuten"],
-      "variableMeasured": [
-        { "@type": "PropertyValue", "name": "Total Portfolio (CAD)", "value": "~217,281.71" },
-        { "@type": "PropertyValue", "name": "Currencies", "value": "CAD, MXN, JPY" },
-        { "@type": "PropertyValue", "name": "Brokers", "value": "TD Bank (Canada), GBM (Mexico), CETESdirecto (Mexico), Rakuten (Japan)" },
-        { "@type": "PropertyValue", "name": "Accounts", "value": "RRSP, TFSA, Cash Canada, Cash Mexico, GBM, CETES, NISA" },
-        { "@type": "PropertyValue", "name": "Portfolio Groups", "value": "Productive 40% (US/JP equities), Liquidity 30% (CETES/Bonddia/Cash), Protection 30% (Metals/REITs/Crypto)" },
-        { "@type": "PropertyValue", "name": "Static Snapshot URL", "value": "https://moon-sto.web.app/snapshot.html" }
-      ]
-    }
-    </script>
-    <script>document.documentElement.classList.add('js-loaded')</script>
-    <style>
-      #ai-content{font-family:system-ui,sans-serif;background:#0A0A0F;color:#E2E8F0;padding:24px;font-size:14px}
-      #ai-content table{width:100%;border-collapse:collapse;margin:8px 0}
-      #ai-content th{color:#94A3B8;font-size:11px;text-align:left;padding:8px 12px;border-bottom:1px solid #1E1E2E}
-      #ai-content td{padding:8px 12px;border-bottom:1px solid #1E1E2E;vertical-align:top}
-      #ai-content h2{color:#94A3B8;font-size:.75rem;text-transform:uppercase;margin:24px 0 8px}
-      #ai-content a{color:#6366F1}
-      /* With JS the SPA is shown; snapshot stays in the DOM (readable by AI scrapers / headless browsers) but visually hidden */
-      html.js-loaded #ai-content{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;border:0!important}
-    </style>
   </head>
   <body>
-    <!--AI_SNAPSHOT-->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
