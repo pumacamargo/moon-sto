@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { mockAccounts, mockExchangeRates } from '../lib/mockData'
+import { accounts, exchangeRates } from '../lib/portfolioData'
 import type { Currency } from '../types'
 
 const currencies: Currency[] = ['CAD', 'MXN', 'JPY']
@@ -28,7 +28,7 @@ export function Settings() {
             </tr>
           </thead>
           <tbody>
-            {mockAccounts.map(a => (
+            {accounts.map(a => (
               <tr key={a.id} style={{ borderBottom: '1px solid #0D0D14' }}>
                 <td style={{ padding: '12px 10px', color: '#F1F5F9', fontWeight: 600 }}>{a.name}</td>
                 <td style={{ padding: '12px 10px', color: '#94A3B8' }}>{a.location}</td>
@@ -45,12 +45,12 @@ export function Settings() {
         <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Exchange Rates</div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-2.5">
           {[
-            { label: 'CAD → MXN', value: mockExchangeRates.CAD_MXN },
-            { label: 'CAD → JPY', value: mockExchangeRates.CAD_JPY },
-            { label: 'MXN → CAD', value: mockExchangeRates.MXN_CAD },
-            { label: 'JPY → CAD', value: mockExchangeRates.JPY_CAD },
-            { label: 'MXN → JPY', value: mockExchangeRates.MXN_JPY },
-            { label: 'JPY → MXN', value: mockExchangeRates.JPY_MXN },
+            { label: 'CAD → MXN', value: exchangeRates.CAD_MXN },
+            { label: 'CAD → JPY', value: exchangeRates.CAD_JPY },
+            { label: 'MXN → CAD', value: exchangeRates.MXN_CAD },
+            { label: 'JPY → CAD', value: exchangeRates.JPY_CAD },
+            { label: 'MXN → JPY', value: exchangeRates.MXN_JPY },
+            { label: 'JPY → MXN', value: exchangeRates.JPY_MXN },
           ].map(r => (
             <div key={r.label} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -62,7 +62,7 @@ export function Settings() {
           ))}
         </div>
         <div style={{ marginTop: 10, color: '#4B5563', fontSize: 11 }}>
-          Last updated: {mockExchangeRates.updatedAt.toLocaleString()}
+          Last updated: {exchangeRates.updatedAt.toLocaleString()}
         </div>
       </Card>
 

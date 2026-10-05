@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { mockPositions } from '../lib/mockData'
+import { fallbackPositions } from '../lib/fallbackPositions'
 import { useCetesDirecto } from './useCetesDirecto'
 import { useGbm } from './useGbm'
 import { useRakuten } from './useRakuten'
@@ -174,7 +174,7 @@ export function useAllPositions(): AllPositionsResult {
     const tdAccountIds = new Set(
       tdData.captures.map(c => TD_ACCOUNT_IDS[c.accountType]).filter((id): id is string => !!id)
     )
-    return mockPositions
+    return fallbackPositions
       .filter(p => !(hasTd      && tdAccountIds.has(p.accountId)))
       .filter(p => !(hasCetes   && CETES_MOCK_IDS.has(p.id)))
       .filter(p => !(hasGbm     && GBM_MOCK_IDS.has(p.id)))

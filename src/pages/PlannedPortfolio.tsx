@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { mockPlannedGroups, TOTAL_CAD } from '../lib/mockData'
+import { plannedGroups, TOTAL_CAD } from '../lib/portfolioData'
 import { formatPct } from '../lib/currency'
 
 const GROUP_BG: Record<string, string> = {
@@ -43,7 +43,7 @@ export function PlannedPortfolio() {
   const { convert, formatDisplay } = useCurrency()
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const allCategories = mockPlannedGroups.flatMap(g => g.categories)
+  const allCategories = plannedGroups.flatMap(g => g.categories)
 
   const locationRows = (['Canada', 'Mexico', 'Japan'] as const).map(loc => {
     const cats = allCategories.filter(c => c.location === loc)
@@ -78,7 +78,7 @@ export function PlannedPortfolio() {
     }))
     .filter(d => d.value > 0)
 
-  const groupPieData = mockPlannedGroups.map(g => ({
+  const groupPieData = plannedGroups.map(g => ({
     name: g.name,
     value: g.categories.reduce((s, c) => s + c.targetPct, 0),
   }))
@@ -200,7 +200,7 @@ export function PlannedPortfolio() {
               </tr>
             </thead>
             <tbody>
-              {mockPlannedGroups.map(g => {
+              {plannedGroups.map(g => {
                 const gTargetPct = g.categories.reduce((s, c) => s + c.targetPct, 0)
                 const gCurrentPct = g.categories.reduce((s, c) => s + c.currentPct, 0)
                 const gTargetVal = g.categories.reduce((s, c) => s + c.targetValue, 0)
@@ -261,18 +261,18 @@ export function PlannedPortfolio() {
                 <td colSpan={3} style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
                 <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>100%</td>
                 <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>
-                  {mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentPct, 0), 0).toFixed(2)}%
+                  {plannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentPct, 0), 0).toFixed(2)}%
                 </td>
                 <td style={tdStyle} />
                 <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>
-                  {formatDisplay(convert(mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.targetValue, 0), 0), 'CAD'))}
+                  {formatDisplay(convert(plannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.targetValue, 0), 0), 'CAD'))}
                 </td>
                 <td style={{ ...tdStyle, color: '#F1F5F9', fontWeight: 700 }}>
                   {formatDisplay(convert(TOTAL_CAD, 'CAD'))}
                 </td>
                 <td style={tdStyle} />
                 <td style={{ ...tdStyle, color: '#10B981', fontWeight: 700 }}>
-                  {formatDisplay(convert(mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + (c.netPnl ?? 0), 0), 0), 'CAD'))}
+                  {formatDisplay(convert(plannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + (c.netPnl ?? 0), 0), 0), 'CAD'))}
                 </td>
               </tr>
             </tbody>

@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react'
 import { Card } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { mockAccounts } from '../lib/mockData'
+import { accounts } from '../lib/portfolioData'
 import { formatCurrency, formatPct } from '../lib/currency'
 import { useAllPositions } from '../hooks/useAllPositions'
 
@@ -98,7 +98,7 @@ export default function Portfolio() {
     return true
   })
 
-  const accountById = Object.fromEntries(mockAccounts.map(a => [a.id, a]))
+  const accountById = Object.fromEntries(accounts.map(a => [a.id, a]))
 
   const COUNTRY_ORDER = ['Japan', 'Mexico', 'Canada'] as const
   const byCountry = COUNTRY_ORDER.map(country => ({
@@ -264,7 +264,7 @@ export default function Portfolio() {
             style={{ background: '#12121A', border: '1px solid #1E1E2E', color: '#F1F5F9', borderRadius: 8 }}
           >
             <option value="all">All Accounts</option>
-            {mockAccounts.map(a => (
+            {accounts.map(a => (
               <option key={a.id} value={a.id}>{a.name}</option>
             ))}
           </select>

@@ -1,5 +1,5 @@
 import { Card } from '../components/ui/Card'
-import { mockTransfers } from '../lib/mockData'
+import { transfers } from '../lib/portfolioData'
 import { formatCurrency } from '../lib/currency'
 
 const thStyle: React.CSSProperties = {
@@ -25,9 +25,9 @@ function fmtDate(d: Date): string {
 }
 
 export function Transfers() {
-  const totalSent = mockTransfers.reduce((s, t) => s + t.sentAmount, 0)
-  const totalCommission = mockTransfers.reduce((s, t) => s + t.commissionCAD, 0)
-  const totalArriveCAD = mockTransfers.reduce((s, t) => s + t.arriveInCAD, 0)
+  const totalSent = transfers.reduce((s, t) => s + t.sentAmount, 0)
+  const totalCommission = transfers.reduce((s, t) => s + t.commissionCAD, 0)
+  const totalArriveCAD = transfers.reduce((s, t) => s + t.arriveInCAD, 0)
 
   return (
     <div className="flex flex-col gap-3 md:gap-4">
@@ -64,7 +64,7 @@ export function Transfers() {
               </tr>
             </thead>
             <tbody>
-              {mockTransfers.map(t => (
+              {transfers.map(t => (
                 <tr key={t.id} style={{ borderBottom: '1px solid #0D0D14' }}>
                   <td style={{ ...tdStyle, textAlign: 'left', color: '#F1F5F9' }}>{fmtDate(t.date)}</td>
                   <td style={{ ...tdStyle, textAlign: 'left', color: '#94A3B8' }}>{t.from}</td>

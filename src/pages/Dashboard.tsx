@@ -2,7 +2,8 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveCo
 import { StatCard } from '../components/ui/StatCard'
 import { Card, CardTitle, CardHeader } from '../components/ui/Card'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { mockPlannedGroups, mockPositions, mockAccounts, TOTAL_CAD } from '../lib/mockData'
+import { plannedGroups, TOTAL_CAD, accounts } from '../lib/portfolioData'
+import { fallbackPositions } from '../lib/fallbackPositions'
 import { formatPct } from '../lib/currency'
 
 const GROUP_COLORS: Record<string, string> = {
@@ -16,16 +17,16 @@ export default function Dashboard() {
 
   const totalDisplay = convert(TOTAL_CAD, 'CAD')
 
-  const totalNetPnl = mockPlannedGroups
+  const totalNetPnl = plannedGroups
     .flatMap(g => g.categories)
     .reduce((sum, c) => sum + (c.netPnl ?? 0), 0)
 
   const totalNetPnlDisplay = convert(totalNetPnl, 'CAD')
 
-  const positionCount = mockPositions.filter(p => p.currentValue > 0).length
-  const accountCount = mockAccounts.length
+  const positionCount = fallbackPositions.filter(p => p.currentValue > 0).length
+  const accountCount = accounts.length
 
-  const pieData = mockPlannedGroups.map(g => ({
+  const pieData = plannedGroups.map(g => ({
     name: g.name,
     value: g.categories.reduce((sum, c) => sum + c.currentValue, 0),
     color: GROUP_COLORS[g.name] ?? '#94A3B8',
@@ -35,7 +36,7 @@ export default function Dashboard() {
     {
       location: 'Canada',
       target: 32,
-      current: mockPlannedGroups
+      current: plannedGroups
         .flatMap(g => g.categories)
         .filter(c => c.location === 'Canada')
         .reduce((sum, c) => sum + c.currentPct, 0),
@@ -43,7 +44,7 @@ export default function Dashboard() {
     {
       location: 'Mexico',
       target: 38,
-      current: mockPlannedGroups
+      current: plannedGroups
         .flatMap(g => g.categories)
         .filter(c => c.location === 'Mexico')
         .reduce((sum, c) => sum + c.currentPct, 0),
@@ -51,7 +52,7 @@ export default function Dashboard() {
     {
       location: 'Japan',
       target: 30,
-      current: mockPlannedGroups
+      current: plannedGroups
         .flatMap(g => g.categories)
         .filter(c => c.location === 'Japan')
         .reduce((sum, c) => sum + c.currentPct, 0),
@@ -78,7 +79,7 @@ export default function Dashboard() {
         <StatCard
           label="Positions"
           value={String(positionCount)}
-          sub={`${mockPositions.length} total`}
+          sub={`${fallbackPositions.length} total`}
         />
         <StatCard
           label="Accounts"
@@ -159,7 +160,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {mockPlannedGroups.map(g => {
+              {plannedGroups.map(g => {
                 const currentPct = g.categories.reduce((s, c) => s + c.currentPct, 0)
                 const targetVal = g.categories.reduce((s, c) => s + c.targetValue, 0)
                 const currentVal = g.categories.reduce((s, c) => s + c.currentValue, 0)
@@ -184,14 +185,14 @@ export default function Dashboard() {
                 <td style={{ padding: '10px 12px', color: '#F1F5F9', fontWeight: 700 }}>Total</td>
                 <td style={{ padding: '10px 12px', textAlign: 'right', color: '#F1F5F9', fontWeight: 600 }}>100%</td>
                 <td style={{ padding: '10px 12px', textAlign: 'right', color: '#F1F5F9', fontWeight: 600 }}>
-                  {mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentPct, 0), 0).toFixed(2)}%
+                  {plannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentPct, 0), 0).toFixed(2)}%
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'right' }} />
                 <td style={{ padding: '10px 12px', textAlign: 'right', color: '#F1F5F9', fontWeight: 600 }}>
-                  {formatDisplay(convert(mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.targetValue, 0), 0), 'CAD'))}
+                  {formatDisplay(convert(plannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.targetValue, 0), 0), 'CAD'))}
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'right', color: '#F1F5F9', fontWeight: 600 }}>
-                  {formatDisplay(convert(mockPlannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentValue, 0), 0), 'CAD'))}
+                  {formatDisplay(convert(plannedGroups.reduce((s, g) => s + g.categories.reduce((ss, c) => ss + c.currentValue, 0), 0), 'CAD'))}
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'right', color: totalNetPnl >= 0 ? '#10B981' : '#EF4444', fontWeight: 600 }}>
                   {formatDisplay(convert(totalNetPnl, 'CAD'))}

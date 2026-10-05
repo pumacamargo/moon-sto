@@ -3,7 +3,7 @@ import { Moon, UserRound } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useCurrency } from '../../contexts/CurrencyContext'
 import { formatCurrency } from '../../lib/currency'
-import { TOTAL_CAD } from '../../lib/mockData'
+import { TOTAL_CAD } from '../../lib/portfolioData'
 import type { Currency } from '../../types'
 
 const currencyOptions: Currency[] = ['CAD', 'MXN', 'JPY']

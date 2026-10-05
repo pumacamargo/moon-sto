@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Currency, ExchangeRates } from '../types'
 import { convert as convertHelper, formatCurrency as formatHelper } from '../lib/currency'
-import { mockExchangeRates } from '../lib/mockData'
+import { exchangeRates } from '../lib/portfolioData'
 
 interface CurrencyContextValue {
   displayCurrency: Currency
@@ -17,7 +17,7 @@ const CurrencyContext = createContext<CurrencyContextValue | null>(null)
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [displayCurrency, setDisplayCurrency] = useState<Currency>('CAD')
-  const rates = mockExchangeRates
+  const rates = exchangeRates
 
   function convert(value: number, fromCurrency: Currency): number {
     return convertHelper(value, fromCurrency, displayCurrency, rates)

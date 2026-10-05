@@ -3,7 +3,7 @@ import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { StatCard } from '../components/ui/StatCard'
 import { useCurrency } from '../contexts/CurrencyContext'
-import { mockAccounts } from '../lib/mockData'
+import { accounts } from '../lib/portfolioData'
 import { formatCurrency, formatPct } from '../lib/currency'
 import { useAllPositions } from '../hooks/useAllPositions'
 
@@ -34,7 +34,7 @@ export function Performance() {
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const { positions: allPositions, loading } = useAllPositions()
 
-  const accountById = Object.fromEntries(mockAccounts.map(a => [a.id, a]))
+  const accountById = Object.fromEntries(accounts.map(a => [a.id, a]))
 
   // Only positions with a cost basis (excludes pure cash placeholders with value=0)
   const withGain = allPositions.filter(p => p.value > 0)
