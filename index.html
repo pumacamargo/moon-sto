@@ -27,39 +27,21 @@
       ]
     }
     </script>
+    <script>document.documentElement.classList.add('js-loaded')</script>
+    <style>
+      #ai-content{font-family:system-ui,sans-serif;background:#0A0A0F;color:#E2E8F0;padding:24px;font-size:14px}
+      #ai-content table{width:100%;border-collapse:collapse;margin:8px 0}
+      #ai-content th{color:#94A3B8;font-size:11px;text-align:left;padding:8px 12px;border-bottom:1px solid #1E1E2E}
+      #ai-content td{padding:8px 12px;border-bottom:1px solid #1E1E2E;vertical-align:top}
+      #ai-content h2{color:#94A3B8;font-size:.75rem;text-transform:uppercase;margin:24px 0 8px}
+      #ai-content a{color:#6366F1}
+      /* With JS the SPA is shown; snapshot stays in the DOM (readable by AI scrapers / headless browsers) but visually hidden */
+      html.js-loaded #ai-content{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;border:0!important}
+    </style>
   </head>
   <body>
-    <!-- AI-READABLE: Moonsto is Arturo's investment portfolio app. Full static data (all positions, no JS needed) at https://moon-sto.web.app/snapshot.html -->
+    <!--AI_SNAPSHOT-->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <noscript>
-      <style>body{font-family:system-ui,sans-serif;background:#0A0A0F;color:#E2E8F0;padding:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin:16px 0}th{background:#0D0D14;color:#94A3B8;font-size:11px;text-align:left;padding:8px 12px;border-bottom:1px solid #1E1E2E}td{padding:8px 12px;border-bottom:1px solid #0D0D14}h1{color:#F1F5F9}h2{color:#94A3B8;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;margin:24px 0 8px}p{color:#64748B;font-size:12px}a{color:#6366F1}</style>
-      <h1>Moonsto — Investment Portfolio</h1>
-      <p>This app requires JavaScript. For a static readable version: <a href="/snapshot.html">snapshot.html</a></p>
-      <p>Owner: Arturo | Currencies: CAD, MXN, JPY | Total: ~$217,281.71 CAD</p>
-      <h2>Brokers &amp; Accounts</h2>
-      <table>
-        <thead><tr><th>Account</th><th>Country</th><th>Currency</th><th>Broker</th></tr></thead>
-        <tbody>
-          <tr><td>RRSP</td><td>Canada</td><td>CAD</td><td>TD Direct Investing</td></tr>
-          <tr><td>TFSA</td><td>Canada</td><td>CAD</td><td>TD Direct Investing</td></tr>
-          <tr><td>Cash Canada</td><td>Canada</td><td>CAD</td><td>TD Bank</td></tr>
-          <tr><td>Cash Mexico</td><td>Mexico</td><td>MXN</td><td>—</td></tr>
-          <tr><td>GBM</td><td>Mexico</td><td>MXN</td><td>GBM+ (appgbm.com)</td></tr>
-          <tr><td>CETES</td><td>Mexico</td><td>MXN</td><td>CETESdirecto</td></tr>
-          <tr><td>NISA</td><td>Japan</td><td>JPY</td><td>Rakuten 証券</td></tr>
-        </tbody>
-      </table>
-      <h2>Portfolio Groups (Target Allocation)</h2>
-      <table>
-        <thead><tr><th>Group</th><th>Target %</th><th>Key holdings</th></tr></thead>
-        <tbody>
-          <tr><td>Productive</td><td>40%</td><td>US equities (20%), JP equities (10%), Options (10%)</td></tr>
-          <tr><td>Liquidity</td><td>30%</td><td>CETES 25%, Bonddia 5%</td></tr>
-          <tr><td>Protection</td><td>30%</td><td>Metals/Commodities 10%, REITs 10%, Crypto 10%</td></tr>
-        </tbody>
-      </table>
-      <p>Full static snapshot with all positions: <a href="/snapshot.html">moon-sto.web.app/snapshot.html</a></p>
-    </noscript>
   </body>
 </html>

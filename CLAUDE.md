@@ -82,13 +82,20 @@ El usuario debe hacer 2 capturas por sesión:
 | `npm run build` | Solo compila (sin snapshot ni deploy) |
 | `firebase deploy --only hosting` | Solo sube dist/ — **no** regenera el snapshot |
 
-### Qué es el snapshot
+### Qué es el snapshot y cómo llega a todas las páginas
 
-`public/snapshot.html` es una página HTML estática sin JavaScript que contiene todas las posiciones del portafolio con datos reales leídos de Firestore. Se genera con `scripts/generate-snapshot.ts` vía la REST API de Firestore (no requiere auth porque `page_captures` es público).
+`public/snapshot.html` es una página HTML estática con todos los datos del portafolio leídos de Firestore. Se genera con `scripts/generate-snapshot.ts`.
 
-**URL pública:** https://moon-sto.web.app/snapshot.html
+**URL directa:** https://moon-sto.web.app/snapshot.html
 
-Esta página permite que herramientas de AI (ChatGPT, Claude, etc.) lean el portafolio completo sin ejecutar JavaScript. El `index.html` principal también tiene JSON-LD y `<noscript>` con metadata del portafolio.
+Además, el contenido del snapshot se **inyecta automáticamente en `index.html`** durante el build mediante un plugin de Vite (`aiSnapshot()` en `vite.config.ts`). Firebase sirve ese `index.html` en TODAS las rutas del SPA (`/`, `/portfolio`, `/dashboard`, etc.), así que cualquier URL del sitio es legible por IAs sin JavaScript.
+
+**Cómo funciona la ocultación visual:**
+- Se agrega la clase `js-loaded` a `<html>` via un script inline en el `<head>` (antes de que React monte)
+- Con JS activo: `#ai-content` se oculta visualmente con `clip-path`/`1px` (estilo `sr-only`) — el texto **sigue en el DOM** para scrapers headless
+- Sin JS: el contenido es completamente visible
+
+**Por qué NO se usa `display:none`:** quita el texto del DOM, así que los scrapers tampoco lo ven. El `clip-path` lo oculta visualmente pero lo mantiene legible.
 
 ### Cuándo regenerar el snapshot
 
