@@ -7,7 +7,7 @@ import { formatPct } from '../lib/currency'
 
 const GROUP_BG: Record<string, string> = {
   'Global Equities':      'rgba(99,102,241,0.07)',
-  'CETES':                'rgba(16,185,129,0.07)',
+  'Bonds':                'rgba(16,185,129,0.07)',
   'SOFIPOs':              'rgba(110,231,183,0.07)',
   'REITs / Infrastructure': 'rgba(251,191,36,0.07)',
   'Gold / Commodities':   'rgba(245,158,11,0.07)',
@@ -15,7 +15,7 @@ const GROUP_BG: Record<string, string> = {
 }
 const GROUP_COLOR: Record<string, string> = {
   'Global Equities':      '#818CF8',
-  'CETES':                '#34D399',
+  'Bonds':                '#34D399',
   'SOFIPOs':              '#6EE7B7',
   'REITs / Infrastructure': '#FBBF24',
   'Gold / Commodities':   '#F59E0B',

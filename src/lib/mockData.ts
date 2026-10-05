@@ -50,7 +50,7 @@ export const mockPlannedGroups: PlannedGroup[] = [
     ]
   },
   {
-    id: '2', name: 'CETES', targetPct: 20,
+    id: '2', name: 'Bonds', targetPct: 20,
     categories: [
       { id: '4', groupId: '2', location: 'Mexico', category: 'Cetes', targetPct: 20, currentPct: 10.51, targetValue: 43456.34, currentValue: 22829.94, netPnl: 239.28 },
     ]
