@@ -8,9 +8,57 @@
     <meta name="description" content="Moonsto — investment portfolio tracker for multi-currency, multi-broker accounts (CAD/MXN/JPY). Pages: Dashboard, Portfolio, Planned Portfolio, Transfers, Performance, Settings." />
     <meta name="robots" content="noindex,nofollow" />
     <title>moonsto</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Moonsto Portfolio",
+      "description": "Arturo's personal investment portfolio tracker. Multi-currency (CAD/MXN/JPY), multi-broker (TD Bank Canada, GBM Mexico, CETESdirecto Mexico, Rakuten Japan).",
+      "url": "https://moon-sto.web.app",
+      "creator": { "@type": "Person", "name": "Arturo", "email": "puma.camargo@gmail.com" },
+      "keywords": ["portfolio", "investments", "CAD", "MXN", "JPY", "RRSP", "TFSA", "CETES", "GBM", "Rakuten"],
+      "variableMeasured": [
+        { "@type": "PropertyValue", "name": "Total Portfolio (CAD)", "value": "~217,281.71" },
+        { "@type": "PropertyValue", "name": "Currencies", "value": "CAD, MXN, JPY" },
+        { "@type": "PropertyValue", "name": "Brokers", "value": "TD Bank (Canada), GBM (Mexico), CETESdirecto (Mexico), Rakuten (Japan)" },
+        { "@type": "PropertyValue", "name": "Accounts", "value": "RRSP, TFSA, Cash Canada, Cash Mexico, GBM, CETES, NISA" },
+        { "@type": "PropertyValue", "name": "Portfolio Groups", "value": "Productive 40% (US/JP equities), Liquidity 30% (CETES/Bonddia/Cash), Protection 30% (Metals/REITs/Crypto)" },
+        { "@type": "PropertyValue", "name": "Static Snapshot URL", "value": "https://moon-sto.web.app/snapshot.html" }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <noscript>
+      <style>body{font-family:system-ui,sans-serif;background:#0A0A0F;color:#E2E8F0;padding:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin:16px 0}th{background:#0D0D14;color:#94A3B8;font-size:11px;text-align:left;padding:8px 12px;border-bottom:1px solid #1E1E2E}td{padding:8px 12px;border-bottom:1px solid #0D0D14}h1{color:#F1F5F9}h2{color:#94A3B8;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;margin:24px 0 8px}p{color:#64748B;font-size:12px}a{color:#6366F1}</style>
+      <h1>Moonsto — Investment Portfolio</h1>
+      <p>This app requires JavaScript. For a static readable version: <a href="/snapshot.html">snapshot.html</a></p>
+      <p>Owner: Arturo | Currencies: CAD, MXN, JPY | Total: ~$217,281.71 CAD</p>
+      <h2>Brokers &amp; Accounts</h2>
+      <table>
+        <thead><tr><th>Account</th><th>Country</th><th>Currency</th><th>Broker</th></tr></thead>
+        <tbody>
+          <tr><td>RRSP</td><td>Canada</td><td>CAD</td><td>TD Direct Investing</td></tr>
+          <tr><td>TFSA</td><td>Canada</td><td>CAD</td><td>TD Direct Investing</td></tr>
+          <tr><td>Cash Canada</td><td>Canada</td><td>CAD</td><td>TD Bank</td></tr>
+          <tr><td>Cash Mexico</td><td>Mexico</td><td>MXN</td><td>—</td></tr>
+          <tr><td>GBM</td><td>Mexico</td><td>MXN</td><td>GBM+ (appgbm.com)</td></tr>
+          <tr><td>CETES</td><td>Mexico</td><td>MXN</td><td>CETESdirecto</td></tr>
+          <tr><td>NISA</td><td>Japan</td><td>JPY</td><td>Rakuten 証券</td></tr>
+        </tbody>
+      </table>
+      <h2>Portfolio Groups (Target Allocation)</h2>
+      <table>
+        <thead><tr><th>Group</th><th>Target %</th><th>Key holdings</th></tr></thead>
+        <tbody>
+          <tr><td>Productive</td><td>40%</td><td>US equities (20%), JP equities (10%), Options (10%)</td></tr>
+          <tr><td>Liquidity</td><td>30%</td><td>CETES 25%, Bonddia 5%</td></tr>
+          <tr><td>Protection</td><td>30%</td><td>Metals/Commodities 10%, REITs 10%, Crypto 10%</td></tr>
+        </tbody>
+      </table>
+      <p>Full static snapshot with all positions: <a href="/snapshot.html">moon-sto.web.app/snapshot.html</a></p>
+    </noscript>
   </body>
 </html>
