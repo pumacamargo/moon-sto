@@ -32,8 +32,8 @@ export const plannedGroups: PlannedGroup[] = [
   {
     id: '2', name: 'Bonds', targetPct: 20,
     categories: [
-      { id: '4', groupId: '2', location: 'Mexico', category: 'Cetes', targetPct: 13, currentPct: 10.51, targetValue: 28246.62, currentValue: 22829.94, netPnl: 239.28 },
-      { id: '9', groupId: '2', location: 'Mexico', category: 'Bonddia', targetPct: 7, currentPct: 11.82, targetValue: 15209.72, currentValue: 25688.81, netPnl: 517.52 },
+      { id: '4', groupId: '2', location: 'Mexico', category: 'Cetes', targetPct: 10, currentPct: 10.51, targetValue: 21728.17, currentValue: 22829.94, netPnl: 239.28 },
+      { id: '9', groupId: '2', location: 'Mexico', category: 'Bonddia', targetPct: 10, currentPct: 11.82, targetValue: 21728.17, currentValue: 25688.81, netPnl: 517.52 },
     ]
   },
   {
