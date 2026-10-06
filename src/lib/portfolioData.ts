@@ -46,8 +46,6 @@ export const plannedGroups: PlannedGroup[] = [
     id: '6', name: 'Cash', targetPct: 10,
     categories: [
       { id: '10', groupId: '6', location: 'Canada', category: 'CashC', targetPct: 10, currentPct: 59.53, targetValue: 21728.17, currentValue: 129345.69, netPnl: 0 },
-      { id: '11', groupId: '6', location: 'Japan', category: 'CashJ', targetPct: 0, currentPct: 0, targetValue: 0, currentValue: 0, netPnl: 0 },
-      { id: '12', groupId: '6', location: 'Mexico', category: 'CashM', targetPct: 0, currentPct: 0, targetValue: 0, currentValue: 0, netPnl: 0 },
     ]
   },
   {
