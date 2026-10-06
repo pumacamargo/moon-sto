@@ -39,8 +39,7 @@ export const plannedGroups: PlannedGroup[] = [
   {
     id: '4', name: 'REITs / Infrastructure', targetPct: 10,
     categories: [
-      { id: '6', groupId: '4', location: 'Mexico', category: 'REITs / InfrastructureM', targetPct: 7, currentPct: 8.95, targetValue: 15209.72, currentValue: 19436.47, netPnl: 1049.07 },
-      { id: '7', groupId: '4', location: 'Canada', category: 'REITs / InfrastructureC', targetPct: 3, currentPct: 0, targetValue: 6518.45, currentValue: 0, netPnl: 0 },
+      { id: '6', groupId: '4', location: 'Mexico', category: 'REITs / InfrastructureM', targetPct: 10, currentPct: 8.95, targetValue: 21728.17, currentValue: 19436.47, netPnl: 1049.07 },
     ]
   },
   {
