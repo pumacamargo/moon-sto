@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { BottomNav } from './BottomNav'
 import { getPageTitle } from './navItems'
+import { useAutoSnapshot } from '../../hooks/useAutoSnapshot'
 
 const SIDEBAR_KEY = 'moonsto.sidebarCollapsed'
 
@@ -21,6 +22,7 @@ function initialCollapsed(): boolean {
  *  - md+: collapsible left sidebar, header becomes a page title bar, no bottom nav
  */
 export function Layout() {
+  useAutoSnapshot()
   const [collapsed, setCollapsed] = useState(initialCollapsed)
   const { pathname } = useLocation()
   const title = getPageTitle(pathname)

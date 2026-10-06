@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { addDoc, collection, Timestamp } from 'firebase/firestore'
 import {
   AreaChart,
   Area,
@@ -9,20 +8,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts'
-import { Save } from 'lucide-react'
 import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { useAllPositions } from '../hooks/useAllPositions'
 import { usePortfolioHistory } from '../hooks/usePortfolioHistory'
-import { db } from '../lib/firebase'
-import { exchangeRates } from '../lib/portfolioData'
-import type { Currency } from '../types'
-
-function toCAD(amount: number, currency: Currency): number {
-  if (currency === 'CAD') return amount
-  if (currency === 'MXN') return amount * exchangeRates.MXN_CAD
-  return amount * exchangeRates.JPY_CAD
-}
 
 function fmtCAD(n: number) {
   return n.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -33,49 +20,8 @@ function fmtDate(d: Date) {
 }
 
 export function History() {
-  const { positions, loading: positionsLoading } = useAllPositions()
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshKey] = useState(0)
   const { snapshots, loading: historyLoading } = usePortfolioHistory(refreshKey)
-  const [saving, setSaving] = useState(false)
-  const [saveMsg, setSaveMsg] = useState<{ text: string; ok: boolean } | null>(null)
-
-  async function handleSave() {
-    if (saving || positionsLoading || positions.length === 0) return
-    setSaving(true)
-    setSaveMsg(null)
-    try {
-      const totalInCAD = positions.reduce((s, p) => s + toCAD(p.currentValue, p.currency), 0)
-      const totalMXN = positions
-        .filter(p => p.currency === 'MXN')
-        .reduce((s, p) => s + p.currentValue, 0)
-      const totalJPY = positions
-        .filter(p => p.currency === 'JPY')
-        .reduce((s, p) => s + p.currentValue, 0)
-
-      await addDoc(collection(db, 'portfolio_snapshots'), {
-        date: Timestamp.now(),
-        totalCAD: totalInCAD,
-        totalMXN,
-        totalJPY,
-        positions: positions.map(p => ({
-          ticker: p.ticker,
-          name: p.name ?? p.ticker,
-          accountId: p.accountId,
-          category: p.category,
-          currency: p.currency,
-          costBasis: p.value,
-          currentValue: p.currentValue,
-          pctGain: p.pctGain,
-        })),
-      })
-      setSaveMsg({ text: 'Snapshot saved successfully', ok: true })
-      setRefreshKey(k => k + 1)
-    } catch {
-      setSaveMsg({ text: 'Failed to save snapshot', ok: false })
-    } finally {
-      setSaving(false)
-    }
-  }
 
   const chartData = snapshots.map(s => ({
     label: s.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -93,36 +39,16 @@ export function History() {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold" style={{ color: '#F1F5F9' }}>
-            Portfolio History
-          </h2>
-          <p className="mt-0.5 text-sm" style={{ color: '#64748B' }}>
-            {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} saved
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={handleSave}
-          disabled={saving || positionsLoading}
-        >
-          <Save size={14} />
-          {saving ? 'Saving…' : 'Save Snapshot'}
-        </Button>
+      <div>
+        <h2 className="text-base font-semibold" style={{ color: '#F1F5F9' }}>
+          Portfolio History
+        </h2>
+        <p className="mt-0.5 text-sm" style={{ color: '#64748B' }}>
+          {snapshots.length} snapshot{snapshots.length !== 1 ? 's' : ''} · saved automatically when broker data updates
+        </p>
       </div>
 
-      {saveMsg && (
-        <p
-          className="text-sm"
-          style={{ color: saveMsg.ok ? '#10B981' : '#EF4444' }}
-        >
-          {saveMsg.text}
-        </p>
-      )}
-
-      {/* Summary stats (only when we have data) */}
+      {/* Summary stats */}
       {snapshots.length > 1 && latestTotal != null && (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
@@ -154,8 +80,7 @@ export function History() {
               <p
                 className="mt-1 text-sm font-semibold"
                 style={{
-                  color:
-                    positive === null ? '#F1F5F9' : positive ? '#10B981' : '#EF4444',
+                  color: positive === null ? '#F1F5F9' : positive ? '#10B981' : '#EF4444',
                 }}
               >
                 {value}
@@ -167,10 +92,7 @@ export function History() {
 
       {/* Chart */}
       <Card style={{ padding: 0 }}>
-        <div
-          className="px-4 py-3 md:px-5"
-          style={{ borderBottom: '1px solid #1E1E2E' }}
-        >
+        <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
           <span
             style={{
               color: '#94A3B8',
@@ -191,9 +113,9 @@ export function History() {
           />
         ) : chartData.length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center gap-2">
-            <p style={{ color: '#64748B', fontSize: 14 }}>No snapshots yet</p>
+            <p style={{ color: '#64748B', fontSize: 14 }}>No history yet</p>
             <p style={{ color: '#475569', fontSize: 12 }}>
-              Save your first snapshot to start tracking
+              Snapshots save automatically when the extension updates broker data
             </p>
           </div>
         ) : chartData.length === 1 ? (
@@ -202,7 +124,7 @@ export function History() {
               ${fmtCAD(chartData[0].total)} CAD
             </p>
             <p style={{ color: '#64748B', fontSize: 12 }}>
-              First snapshot on {fmtDate(snapshots[0].date)} — save more to see the chart
+              First snapshot on {fmtDate(snapshots[0].date)} · update broker data again to see a chart
             </p>
           </div>
         ) : (
@@ -236,10 +158,7 @@ export function History() {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  formatter={(v) => [
-                    `$${fmtCAD(Number(v))} CAD`,
-                    'Total',
-                  ]}
+                  formatter={(v) => [`$${fmtCAD(Number(v))} CAD`, 'Total']}
                   labelStyle={{ color: '#F1F5F9', marginBottom: 4 }}
                 />
                 <Area
@@ -261,10 +180,7 @@ export function History() {
       {/* Snapshots table */}
       {snapshots.length > 0 && (
         <Card style={{ padding: 0 }}>
-          <div
-            className="px-4 py-3 md:px-5"
-            style={{ borderBottom: '1px solid #1E1E2E' }}
-          >
+          <div className="px-4 py-3 md:px-5" style={{ borderBottom: '1px solid #1E1E2E' }}>
             <span
               style={{
                 color: '#94A3B8',
@@ -306,17 +222,8 @@ export function History() {
                   const prev = arr[i + 1]
                   const chg = prev ? s.totalCAD - prev.totalCAD : null
                   return (
-                    <tr
-                      key={s.id}
-                      style={{ borderBottom: '1px solid #0D0D14' }}
-                    >
-                      <td
-                        style={{
-                          padding: '9px 12px',
-                          color: '#F1F5F9',
-                          fontSize: 13,
-                        }}
-                      >
+                    <tr key={s.id} style={{ borderBottom: '1px solid #0D0D14' }}>
+                      <td style={{ padding: '9px 12px', color: '#F1F5F9', fontSize: 13 }}>
                         {fmtDate(s.date)}
                       </td>
                       <td
@@ -374,11 +281,7 @@ export function History() {
                           fontSize: 12,
                           fontVariantNumeric: 'tabular-nums',
                           color:
-                            chg == null
-                              ? '#64748B'
-                              : chg >= 0
-                              ? '#10B981'
-                              : '#EF4444',
+                            chg == null ? '#64748B' : chg >= 0 ? '#10B981' : '#EF4444',
                         }}
                       >
                         {chg == null
