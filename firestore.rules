@@ -4,5 +4,8 @@ service cloud.firestore {
     match /page_captures/{doc} {
       allow read, write: if true;
     }
+    match /portfolio_snapshots/{doc} {
+      allow read, write: if true;
+    }
   }
 }

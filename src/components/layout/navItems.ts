@@ -1,4 +1,4 @@
-import { LayoutDashboard, Briefcase, Target, TrendingUp, Settings } from 'lucide-react'
+import { LayoutDashboard, Briefcase, Target, TrendingUp, History, Settings } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export interface NavItem {
@@ -17,6 +17,7 @@ export const navItems: NavItem[] = [
   { to: '/portfolio', icon: Briefcase, label: 'Portfolio', short: 'Portfolio', inBottomNav: true },
   { to: '/planned', icon: Target, label: 'Planned', short: 'Planned', inBottomNav: true },
   { to: '/performance', icon: TrendingUp, label: 'Performance', short: 'Perf', inBottomNav: true },
+  { to: '/history', icon: History, label: 'History', short: 'History', inBottomNav: true },
   { to: '/settings', icon: Settings, label: 'Settings', short: 'Settings', inBottomNav: false },
 ]
 
