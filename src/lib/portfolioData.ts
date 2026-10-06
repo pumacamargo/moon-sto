@@ -22,11 +22,11 @@ export const accounts: Account[] = [
 
 export const plannedGroups: PlannedGroup[] = [
   {
-    id: '1', name: 'Global Equities', targetPct: 47,
+    id: '1', name: 'Global Equities', targetPct: 55,
     categories: [
-      { id: '1', groupId: '1', location: 'Canada', category: 'VXC', targetPct: 37, currentPct: 0, targetValue: 80000, currentValue: 0, netPnl: 0 },
-      { id: '2', groupId: '1', location: 'Canada', category: 'VCN', targetPct: 7, currentPct: 0, targetValue: 15000, currentValue: 0, netPnl: 0 },
-      { id: '3', groupId: '1', location: 'Canada', category: 'VFV', targetPct: 3, currentPct: 0, targetValue: 7500, currentValue: 0, netPnl: 0 },
+      { id: '1', groupId: '1', location: 'Canada', category: 'VXC', targetPct: 40, currentPct: 0, targetValue: 86912.68, currentValue: 0, netPnl: 0 },
+      { id: '2', groupId: '1', location: 'Canada', category: 'VCN', targetPct: 5, currentPct: 0, targetValue: 10864.09, currentValue: 0, netPnl: 0 },
+      { id: '3', groupId: '1', location: 'Canada', category: 'VFV', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
     ]
   },
   {
@@ -43,9 +43,9 @@ export const plannedGroups: PlannedGroup[] = [
     ]
   },
   {
-    id: '6', name: 'Cash', targetPct: 10,
+    id: '6', name: 'Cash', targetPct: 5,
     categories: [
-      { id: '10', groupId: '6', location: 'Canada', category: 'CashC', targetPct: 10, currentPct: 59.53, targetValue: 21728.17, currentValue: 129345.69, netPnl: 0 },
+      { id: '10', groupId: '6', location: 'Canada', category: 'CashC', targetPct: 5, currentPct: 59.53, targetValue: 10864.09, currentValue: 129345.69, netPnl: 0 },
     ]
   },
   {
