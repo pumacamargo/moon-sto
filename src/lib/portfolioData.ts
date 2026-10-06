@@ -24,8 +24,9 @@ export const plannedGroups: PlannedGroup[] = [
   {
     id: '1', name: 'Global Equities', targetPct: 55,
     categories: [
-      { id: '1', groupId: '1', location: 'Canada', category: 'VXC', targetPct: 40, currentPct: 0, targetValue: 86912.68, currentValue: 0, netPnl: 0 },
-      { id: '3', groupId: '1', location: 'Canada', category: 'VFV', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
+      { id: '1', groupId: '1', location: 'Canada', category: 'VXC', targetPct: 30, currentPct: 0, targetValue: 65184.51, currentValue: 0, netPnl: 0 },
+      { id: '3', groupId: '1', location: 'Japan', category: 'VFV', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
+      { id: '13', groupId: '1', location: 'Japan', category: 'Productive Assets JP', targetPct: 10, currentPct: 4.16, targetValue: 21728.17, currentValue: 9035.23, netPnl: 54.40 },
       { id: '2', groupId: '1', location: 'Canada', category: 'VCN', targetPct: 5, currentPct: 0, targetValue: 10864.09, currentValue: 0, netPnl: 0 },
     ]
   },
@@ -57,7 +58,7 @@ export const plannedGroups: PlannedGroup[] = [
   {
     id: '5', name: 'Gold / Commodities', targetPct: 5,
     categories: [
-      { id: '8', groupId: '5', location: 'Canada', category: 'Metals & Commodities', targetPct: 5, currentPct: 3.62, targetValue: 10864.09, currentValue: 7874.72, netPnl: -1499.51 },
+      { id: '8', groupId: '5', location: 'Mexico', category: 'Metals & Commodities', targetPct: 5, currentPct: 3.62, targetValue: 10864.09, currentValue: 7874.72, netPnl: -1499.51 },
     ]
   },
 ]
