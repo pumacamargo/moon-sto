@@ -24,10 +24,10 @@ export const plannedGroups: PlannedGroup[] = [
   {
     id: '1', name: 'Global Equities', targetPct: 55,
     categories: [
-      { id: '1', groupId: '1', location: 'Canada', category: 'VXC', targetPct: 30, currentPct: 0, targetValue: 65184.51, currentValue: 0, netPnl: 0 },
-      { id: '14', groupId: '1', location: 'Japan', category: 'VXC', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
-      { id: '3', groupId: '1', location: 'Japan', category: 'VFV', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
-      { id: '2', groupId: '1', location: 'Canada', category: 'VCN', targetPct: 5, currentPct: 0, targetValue: 10864.09, currentValue: 0, netPnl: 0 },
+      { id: '1', groupId: '1', location: 'Canada', category: 'VXC (Vanguard FTSE Global All Cap ex Canada)', targetPct: 30, currentPct: 0, targetValue: 65184.51, currentValue: 0, netPnl: 0 },
+      { id: '14', groupId: '1', location: 'Japan', category: 'VXC (Vanguard FTSE Global All Cap ex Canada)', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
+      { id: '3', groupId: '1', location: 'Japan', category: 'VFV (Vanguard S&P 500 Index ETF)', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
+      { id: '2', groupId: '1', location: 'Canada', category: 'VCN (Vanguard FTSE Canada All Cap Index ETF)', targetPct: 5, currentPct: 0, targetValue: 10864.09, currentValue: 0, netPnl: 0 },
     ]
   },
   {
