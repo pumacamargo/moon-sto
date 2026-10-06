@@ -22,14 +22,21 @@ export function useAutoSnapshot() {
 
     const timestamps = [cetes.lastUpdated, gbm.lastUpdated, rakuten.lastUpdated, td.lastUpdated]
       .filter((t): t is Date => t != null)
-    if (timestamps.length === 0) return
+    if (timestamps.length === 0) {
+      console.log('[AutoSnapshot] no broker lastUpdated — skipping')
+      return
+    }
 
     const latestTs = new Date(Math.max(...timestamps.map(t => t.getTime())))
     const latestTsStr = latestTs.toISOString()
+    const lastSaved = localStorage.getItem(LS_KEY)
 
-    if (localStorage.getItem(LS_KEY) === latestTsStr) return
+    console.log('[AutoSnapshot] latestBrokerTs:', latestTsStr, '| lastSaved:', lastSaved)
+
+    if (lastSaved === latestTsStr) return
 
     saving.current = true
+    console.log('[AutoSnapshot] saving new snapshot...')
 
     const totalCAD = positions.reduce((s, p) => s + toCAD(p.currentValue, p.currency), 0)
     const totalMXN = positions
@@ -55,7 +62,11 @@ export function useAutoSnapshot() {
         pctGain: p.pctGain,
       })),
     })
-      .then(() => { localStorage.setItem(LS_KEY, latestTsStr) })
+      .then(() => {
+        localStorage.setItem(LS_KEY, latestTsStr)
+        console.log('[AutoSnapshot] saved ✓')
+      })
+      .catch(e => console.error('[AutoSnapshot] error:', e))
       .finally(() => { saving.current = false })
   }, [loading, positions, cetes.lastUpdated, gbm.lastUpdated, rakuten.lastUpdated, td.lastUpdated])
 }

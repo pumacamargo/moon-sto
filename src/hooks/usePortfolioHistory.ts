@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, query, orderBy, getDocs } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 
 export interface PositionSnapshot {
@@ -22,16 +22,16 @@ export interface PortfolioSnapshot {
   positions: PositionSnapshot[]
 }
 
-export function usePortfolioHistory(refreshKey = 0) {
+export function usePortfolioHistory() {
   const [snapshots, setSnapshots] = useState<PortfolioSnapshot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLoading(true)
     const q = query(collection(db, 'portfolio_snapshots'), orderBy('date', 'asc'))
-    getDocs(q)
-      .then(snap => {
+    const unsub = onSnapshot(
+      q,
+      snap => {
         setSnapshots(
           snap.docs.map(doc => {
             const d = doc.data()
@@ -46,10 +46,15 @@ export function usePortfolioHistory(refreshKey = 0) {
           })
         )
         setError(null)
-      })
-      .catch(e => setError(String(e)))
-      .finally(() => setLoading(false))
-  }, [refreshKey])
+        setLoading(false)
+      },
+      e => {
+        setError(String(e))
+        setLoading(false)
+      }
+    )
+    return unsub
+  }, [])
 
   return { snapshots, loading, error }
 }

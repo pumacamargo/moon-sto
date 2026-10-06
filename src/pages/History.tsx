@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   AreaChart,
   Area,
@@ -20,8 +19,7 @@ function fmtDate(d: Date) {
 }
 
 export function History() {
-  const [refreshKey] = useState(0)
-  const { snapshots, loading: historyLoading } = usePortfolioHistory(refreshKey)
+  const { snapshots, loading: historyLoading } = usePortfolioHistory()
 
   const chartData = snapshots.map(s => ({
     label: s.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
