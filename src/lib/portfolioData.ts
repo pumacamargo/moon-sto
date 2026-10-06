@@ -22,11 +22,11 @@ export const accounts: Account[] = [
 
 export const plannedGroups: PlannedGroup[] = [
   {
-    id: '1', name: 'Global Equities', targetPct: 50,
+    id: '1', name: 'Global Equities', targetPct: 47,
     categories: [
-      { id: '1', groupId: '1', location: 'Canada', category: 'Productive Assets US', targetPct: 30, currentPct: 1.41, targetValue: 65184.51, currentValue: 3070.86, netPnl: 486.93 },
-      { id: '2', groupId: '1', location: 'Japan', category: 'Productive Assets JP', targetPct: 10, currentPct: 4.16, targetValue: 21728.17, currentValue: 9035.23, netPnl: 54.40 },
-      { id: '3', groupId: '1', location: 'Japan', category: 'Options Trading', targetPct: 10, currentPct: 0, targetValue: 21728.17, currentValue: 0, netPnl: 0 },
+      { id: '1', groupId: '1', location: 'Canada', category: 'VXC', targetPct: 37, currentPct: 0, targetValue: 80000, currentValue: 0, netPnl: 0 },
+      { id: '2', groupId: '1', location: 'Canada', category: 'VCN', targetPct: 7, currentPct: 0, targetValue: 15000, currentValue: 0, netPnl: 0 },
+      { id: '3', groupId: '1', location: 'Canada', category: 'VFV', targetPct: 3, currentPct: 0, targetValue: 7500, currentValue: 0, netPnl: 0 },
     ]
   },
   {
