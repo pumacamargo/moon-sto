@@ -9,7 +9,7 @@
     "storage"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://firestore.googleapis.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -22,12 +22,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["config.js"],
-      "matches": ["<all_urls>"]
-    }
-  ],
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
