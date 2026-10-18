@@ -133,7 +133,12 @@ function requestOriginsForPage(result, fallbackUrl) {
       if (parsed.protocol === 'https:' || parsed.protocol === 'http:') origins.add(`${parsed.origin}/*`)
     } catch { /* Ignore blob and malformed URLs. */ }
   }
-  addOrigin(result?.pageUrl || fallbackUrl)
+  addOrigin(fallbackUrl)
+  try {
+    if (new URL(fallbackUrl).hostname === 'app.incubadoracreadores.com') {
+      addOrigin('https://cdn.courses.apisystem.tech/')
+    }
+  } catch { /* The tab may be a restricted browser URL. */ }
   for (const candidate of result?.candidates || []) {
     addOrigin(candidate.url)
     addOrigin(candidate.poster)
@@ -375,14 +380,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const monitorButton = document.getElementById('btnArmVideoMonitor')
     monitorButton.disabled = true
     try {
+      // Ask for narrowly scoped host access immediately in the click gesture.
+      const origins = requestOriginsForPage(null, url)
+      const granted = await chrome.permissions.request({ origins })
+      if (!granted) {
+        showStatus('No se concedieron los permisos del sitio/CDN; no se inició el monitor.', 'error')
+        return
+      }
       const [{ result }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: collectPageVideoInfo,
       })
-      const origins = requestOriginsForPage(result, url)
-      const granted = await chrome.permissions.request({ origins })
-      if (!granted) {
-        showStatus('No se concedieron los permisos del sitio/CDN; no se inició el monitor.', 'error')
+      const detectedOrigins = requestOriginsForPage(result, url)
+      const ungrantedOrigins = detectedOrigins.filter(origin => !origins.includes(origin))
+      if (ungrantedOrigins.length) {
+        showStatus('La página usa otro CDN no incluido en el permiso inicial; no registraré solicitudes de ese host.', 'error')
         return
       }
       await chrome.storage.local.set({
