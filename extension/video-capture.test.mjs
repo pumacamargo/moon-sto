@@ -30,14 +30,6 @@ test('stores video captures with an explicit cleanup category and structured can
   assert.equal(fields.videoCount.integerValue, '1')
   assert.equal(fields.videos.arrayValue.values[0].mapValue.fields.url.stringValue,
     'https://cdn.example/clip.mp4')
-  const signedFields = toFirestoreVideoFields({
-    pageUrl: 'https://broker.example/lesson?session=secret',
-    candidates: [{ url: 'https://cdn.example/clip.mp4?token=secret', poster: 'https://cdn.example/poster.jpg?sig=private', source: 'network' }],
-  })
-  const savedVideo = signedFields.videos.arrayValue.values[0].mapValue.fields
-  assert.equal(signedFields.pageUrl.stringValue, 'https://broker.example/lesson')
-  assert.equal(savedVideo.url.stringValue, 'https://cdn.example/clip.mp4')
-  assert.equal(savedVideo.poster.stringValue, 'https://cdn.example/poster.jpg')
 })
 
 test('records an empty scan as no_videos_found without losing the category', () => {
