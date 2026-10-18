@@ -1,5 +1,3 @@
-import { normalizeVideoCandidates, toFirestoreVideoFields } from './video-capture.js'
-
 const FIREBASE_PROJECT = window.MOONSTO_CONFIG?.firebaseProject || ''
 const FIREBASE_KEY     = window.MOONSTO_CONFIG?.firebaseKey     || ''
 const FS_BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`
@@ -71,107 +69,23 @@ async function firestoreList(collection, pageSize = 5) {
   return data.documents || []
 }
 
-// Se ejecuta dentro de la pestaña activa; solo recoge referencias/metadatos, no descarga archivos.
-function collectPageVideoInfo() {
-  const candidates = []
-  const pageUrl = window.location.href
-  const pageTitle = document.title || ''
-  const add = (url, metadata = {}) => {
-    if (typeof url === 'string' && url.trim()) candidates.push({ ...metadata, url: url.trim() })
-  }
-  const mediaPattern = /\.(?:mp4|m4v|mov|webm|m3u8|mpd|m4s|ts)(?:$|[?#])/i
-
-  document.querySelectorAll('video').forEach((video, index) => {
-    const title = video.getAttribute('title') || video.getAttribute('aria-label') ||
-      video.querySelector('track[kind="captions"][src]')?.getAttribute('label') || `Video ${index + 1}`
-    const metadata = {
-      title,
-      poster: video.poster || '',
-      width: video.videoWidth || video.width || 0,
-      height: video.videoHeight || video.height || 0,
-      durationSeconds: Number.isFinite(video.duration) ? video.duration : 0,
-    }
-    add(video.currentSrc || video.src, { ...metadata, source: 'video-element' })
-    video.querySelectorAll('source[src]').forEach(source => {
-      add(source.src || source.getAttribute('src'), {
-        ...metadata,
-        source: 'video-source',
-        mimeType: source.type || '',
-      })
-    })
-  })
-
-  document.querySelectorAll('meta[property="og:video"], meta[property="og:video:url"], meta[name="twitter:player:stream"]')
-    .forEach(meta => add(meta.content, { source: 'video-meta', title: pageTitle }))
-
-  document.querySelectorAll('a[href]').forEach(link => {
-    const href = link.href || ''
-    if (mediaPattern.test(href)) {
-      add(href, { source: 'video-link', title: link.getAttribute('aria-label') || link.title || '' })
-    }
-  })
-
-  try {
-    performance.getEntriesByType('resource').forEach(resource => {
-      if (mediaPattern.test(resource.name) || /\/(?:videoplayback|manifest)(?:[/?]|$)/i.test(resource.name)) {
-        add(resource.name, { source: 'network-resource', mimeType: resource.initiatorType || '' })
-      }
-    })
-  } catch { /* Resource timing may be unavailable on some pages. */ }
-
-  return { pageUrl, pageTitle, candidates }
-}
-
 // ─── UI ─────────────────────────────────────────────────────
 
 function renderHistory(docs) {
-  const pageDocs = docs.filter(doc => doc.fields?.captureType?.stringValue !== 'video')
-  if (!pageDocs.length) return
+  if (!docs.length) return
   document.getElementById('historySection').style.display = 'block'
   const container = document.getElementById('historyItems')
-  container.replaceChildren()
-  pageDocs.slice(0, 4).forEach(doc => {
+  container.innerHTML = ''
+  docs.slice(0, 4).forEach(doc => {
     const f = doc.fields || {}
     const broker = f.broker?.stringValue || '—'
-    const ts = f.capturedAt?.timestampValue
-    const date = ts ? new Date(ts).toLocaleString('es-MX', {
+    const ts     = f.capturedAt?.timestampValue
+    const date   = ts ? new Date(ts).toLocaleString('es-MX', {
       month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
     }) : '—'
     const el = document.createElement('div')
     el.className = 'capture-item'
-    const brokerEl = document.createElement('span')
-    brokerEl.className = 'capture-broker'
-    brokerEl.textContent = broker
-    const dateEl = document.createElement('span')
-    dateEl.className = 'capture-meta'
-    dateEl.textContent = date
-    el.append(brokerEl, dateEl)
-    container.appendChild(el)
-  })
-}
-
-function renderVideoHistory(docs) {
-  const videoDocs = docs.filter(doc => doc.fields?.captureType?.stringValue === 'video')
-  if (!videoDocs.length) return
-  document.getElementById('videoHistorySection').style.display = 'block'
-  const container = document.getElementById('videoHistoryItems')
-  container.replaceChildren()
-  videoDocs.slice(0, 4).forEach(doc => {
-    const f = doc.fields || {}
-    const count = Number(f.videoCount?.integerValue || 0)
-    const ts = f.capturedAt?.timestampValue
-    const date = ts ? new Date(ts).toLocaleString('es-MX', {
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    }) : '—'
-    const el = document.createElement('div')
-    el.className = 'capture-item'
-    const titleEl = document.createElement('span')
-    titleEl.className = 'capture-broker'
-    titleEl.textContent = `${count} fuente${count === 1 ? '' : 's'} candidata${count === 1 ? '' : 's'}`
-    const dateEl = document.createElement('span')
-    dateEl.className = 'capture-meta'
-    dateEl.textContent = date
-    el.append(titleEl, dateEl)
+    el.innerHTML = `<span class="capture-broker">${broker}</span><span class="capture-meta">${date}</span>`
     container.appendChild(el)
   })
 }
@@ -200,10 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // cargar historial
-  firestoreList('page_captures').then(docs => {
-    renderHistory(docs)
-    renderVideoHistory(docs)
-  }).catch(() => {})
+  firestoreList('page_captures').then(renderHistory).catch(() => {})
 
   // botón capturar
   document.getElementById('btnCapture').addEventListener('click', async () => {
@@ -243,50 +154,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const docs = await firestoreList('page_captures')
       renderHistory(docs)
-      renderVideoHistory(docs)
 
     } catch (err) {
       console.error('[moonsto]', err)
       showStatus(`Error: ${err.message}`, 'error')
     } finally {
       setLoading(false)
-    }
-  })
-
-  const videoButton = document.getElementById('btnCaptureVideos')
-  videoButton.addEventListener('click', async () => {
-    videoButton.disabled = true
-    videoButton.textContent = 'Buscando videos...'
-    showStatus('Revisando elementos y recursos multimedia de la página...', 'info')
-
-    try {
-      const [{ result }] = await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: collectPageVideoInfo,
-      })
-      const candidates = normalizeVideoCandidates(result?.candidates || [], result?.pageUrl || url)
-      const fields = toFirestoreVideoFields({
-        pageUrl: result?.pageUrl || url,
-        pageTitle: result?.pageTitle || title,
-        candidates,
-      })
-      await firestoreAdd('page_captures', fields)
-
-      if (candidates.length) {
-        showStatus(`Guardé ${candidates.length} fuente(s) posible(s) como captura de video. No se descargaron los archivos.`, 'success')
-      } else {
-        showStatus('No encontré una URL directa de video; guardé el intento para revisarlo después.', 'info')
-      }
-
-      const docs = await firestoreList('page_captures')
-      renderHistory(docs)
-      renderVideoHistory(docs)
-    } catch (err) {
-      console.error('[moonsto] video scan', err)
-      showStatus(`Error al buscar videos: ${err.message}`, 'error')
-    } finally {
-      videoButton.disabled = false
-      videoButton.textContent = 'Buscar videos de esta página'
     }
   })
 })
