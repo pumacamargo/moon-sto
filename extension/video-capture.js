@@ -1,3 +1,5 @@
+import { redactRequestUrl } from './video-network.js'
+
 const MAX_CANDIDATES = 40
 const MAX_TEXT_LENGTH = 500
 const MAX_URL_LENGTH = 5_000
@@ -63,7 +65,7 @@ export function toFirestoreVideoFields({
   return {
     captureType: { stringValue: 'video' },
     broker: { stringValue: 'video_capture' },
-    pageUrl: stringField(pageUrl),
+    pageUrl: stringField(redactRequestUrl(pageUrl)),
     pageTitle: stringField(pageTitle),
     capturedAt: { timestampValue: capturedAt },
     status: { stringValue: videos.length ? 'videos_found' : 'no_videos_found' },
@@ -73,10 +75,10 @@ export function toFirestoreVideoFields({
         values: videos.map(video => ({
           mapValue: {
             fields: {
-              url: stringField(video.url),
+              url: stringField(redactRequestUrl(video.url)),
               source: stringField(video.source),
               title: stringField(video.title),
-              poster: stringField(video.poster),
+              poster: stringField(redactRequestUrl(video.poster)),
               mimeType: stringField(video.mimeType),
               width: { integerValue: String(video.width || 0) },
               height: { integerValue: String(video.height || 0) },

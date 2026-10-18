@@ -1,4 +1,5 @@
 import { normalizeVideoCandidates, toFirestoreVideoFields } from './video-capture.js'
+import { isVideoRequest, isDirectDownloadRequest, safeRequestLabel } from './video-network.js'
 
 const FIREBASE_PROJECT = window.MOONSTO_CONFIG?.firebaseProject || ''
 const FIREBASE_KEY     = window.MOONSTO_CONFIG?.firebaseKey     || ''
@@ -124,6 +125,83 @@ function collectPageVideoInfo() {
 
 // ─── UI ─────────────────────────────────────────────────────
 
+function requestOriginsForPage(result, fallbackUrl) {
+  const origins = new Set()
+  const addOrigin = value => {
+    try {
+      const parsed = new URL(value)
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') origins.add(`${parsed.origin}/*`)
+    } catch { /* Ignore blob and malformed URLs. */ }
+  }
+  addOrigin(result?.pageUrl || fallbackUrl)
+  for (const candidate of result?.candidates || []) {
+    addOrigin(candidate.url)
+    addOrigin(candidate.poster)
+  }
+  return [...origins]
+}
+
+function renderNetworkRequests(requests) {
+  const section = document.getElementById('networkRequestsSection')
+  const container = document.getElementById('networkRequestsItems')
+  const candidates = requests.filter(request => isVideoRequest(request))
+  container.replaceChildren()
+  if (!candidates.length) {
+    section.style.display = 'none'
+    return
+  }
+  section.style.display = 'block'
+
+  candidates.slice(-20).reverse().forEach((request, index) => {
+    const row = document.createElement('div')
+    row.className = 'capture-item'
+    const label = document.createElement('span')
+    label.className = 'capture-meta'
+    label.textContent = `${request.type || 'resource'} · ${safeRequestLabel(request.url)}`
+    row.appendChild(label)
+
+    const openLink = document.createElement('a')
+    openLink.href = request.url
+    openLink.target = '_blank'
+    openLink.rel = 'noopener noreferrer'
+    openLink.textContent = 'Abrir'
+    openLink.style.marginLeft = '8px'
+    row.appendChild(openLink)
+
+    if (isDirectDownloadRequest(request)) {
+      const downloadButton = document.createElement('button')
+      downloadButton.type = 'button'
+      downloadButton.textContent = 'Descargar'
+      downloadButton.style.marginLeft = '8px'
+      downloadButton.addEventListener('click', async () => {
+        try {
+          const granted = await chrome.permissions.request({ permissions: ['downloads'] })
+          if (!granted) {
+            showStatus('Chrome no concedió permiso de descargas.', 'error')
+            return
+          }
+          const extMatch = new URL(request.url).pathname.match(/\.(mp4|m4v|mov|webm)$/i)
+          const ext = extMatch?.[1]?.toLowerCase() || (request.contentType.includes('webm') ? 'webm' : 'mp4')
+          const filename = `Moonsto/${Date.now()}-video-${index + 1}.${ext}`
+          chrome.downloads.download({ url: request.url, filename, saveAs: true }, () => {
+            if (chrome.runtime.lastError) showStatus(`Descarga fallida: ${chrome.runtime.lastError.message}`, 'error')
+            else showStatus('Descarga iniciada por Chrome.', 'success')
+          })
+        } catch (error) {
+          showStatus(`No se pudo iniciar la descarga: ${error.message}`, 'error')
+        }
+      })
+      row.appendChild(downloadButton)
+    }
+    container.appendChild(row)
+  })
+}
+
+async function getCurrentTabVideoRequests(tabId) {
+  const state = await chrome.storage.local.get(['moonstoVideoMonitorTabId', 'moonstoVideoNetworkRequests'])
+  return state.moonstoVideoMonitorTabId === tabId ? (state.moonstoVideoNetworkRequests || []) : []
+}
+
 function renderHistory(docs) {
   const pageDocs = docs.filter(doc => doc.fields?.captureType?.stringValue !== 'video')
   if (!pageDocs.length) return
@@ -198,6 +276,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     pill.className   = 'broker-pill unknown'
     pill.style.display = 'inline-block'
   }
+
+  const initialRequests = await getCurrentTabVideoRequests(tab.id)
+  renderNetworkRequests(initialRequests)
 
   // cargar historial
   firestoreList('page_captures').then(docs => {
@@ -289,4 +370,60 @@ document.addEventListener('DOMContentLoaded', async () => {
       videoButton.textContent = 'Buscar videos de esta página'
     }
   })
+
+  document.getElementById('btnArmVideoMonitor').addEventListener('click', async () => {
+    const monitorButton = document.getElementById('btnArmVideoMonitor')
+    monitorButton.disabled = true
+    try {
+      const [{ result }] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: collectPageVideoInfo,
+      })
+      const origins = requestOriginsForPage(result, url)
+      const granted = await chrome.permissions.request({ origins })
+      if (!granted) {
+        showStatus('No se concedieron los permisos del sitio/CDN; no se inició el monitor.', 'error')
+        return
+      }
+      await chrome.storage.local.set({
+        moonstoVideoMonitorTabId: tab.id,
+        moonstoVideoNetworkRequests: [],
+      })
+      renderNetworkRequests([])
+      showStatus('Monitor listo. Regresa a la página, reproduce o recarga el video y luego abre la extensión para revisar las solicitudes.', 'success')
+    } catch (error) {
+      showStatus(`No se pudo preparar el monitor: ${error.message}`, 'error')
+    } finally {
+      monitorButton.disabled = false
+    }
+  })
+
+  document.getElementById('btnSaveNetworkCandidates').addEventListener('click', async () => {
+    const saveButton = document.getElementById('btnSaveNetworkCandidates')
+    saveButton.disabled = true
+    try {
+      const requests = await getCurrentTabVideoRequests(tab.id)
+      const rawCandidates = requests.filter(request => isVideoRequest(request)).map(request => ({
+        url: request.url,
+        source: `network:${request.type || 'resource'}`,
+        mimeType: request.contentType || '',
+      }))
+      const candidates = normalizeVideoCandidates(rawCandidates, url)
+      const fields = toFirestoreVideoFields({
+        pageUrl: url,
+        pageTitle: title,
+        candidates,
+      })
+      await firestoreAdd('page_captures', fields)
+      showStatus(`Guardé ${candidates.length} rutas de video en Firebase sin parámetros de URL; las URLs completas siguen solo en este navegador.`, 'success')
+      const docs = await firestoreList('page_captures')
+      renderHistory(docs)
+      renderVideoHistory(docs)
+    } catch (error) {
+      showStatus(`No se pudieron guardar las rutas: ${error.message}`, 'error')
+    } finally {
+      saveButton.disabled = false
+    }
+  })
+
 })
